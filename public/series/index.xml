@@ -2,9 +2,9 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Series on 无在无不在</title>
-    <link>https://nothing-is-nothing.gitee.io/series/</link>
+    <link>https://shangrui-hash.github.io/series/</link>
     <description>Recent content in Series on 无在无不在</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-zh</language><atom:link href="https://nothing-is-nothing.gitee.io/series/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-zh</language><atom:link href="https://shangrui-hash.github.io/series/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>
