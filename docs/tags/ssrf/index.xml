@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SSRF on 无在无不在</title>
+    <link>https://shangrui-hash.github.io/tags/ssrf/</link>
+    <description>Recent content in SSRF on 无在无不在</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-zh</language>
+    <lastBuildDate>Sat, 24 Sep 2022 22:24:18 +0800</lastBuildDate><atom:link href="https://shangrui-hash.github.io/tags/ssrf/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>我是如何挖到三个Blind SSRF漏洞并赚到250美刀赏金的</title>
+      <link>https://shangrui-hash.github.io/posts/bugbounty/story/%E6%88%91%E6%98%AF%E5%A6%82%E4%BD%95%E6%8C%96%E5%88%B0%E4%B8%89%E4%B8%AA%E4%BB%B7%E5%80%BC250%E7%BE%8E%E5%88%80%E7%9A%84blind-ssrf%E6%BC%8F%E6%B4%9E%E7%9A%84/</link>
+      <pubDate>Sat, 24 Sep 2022 22:24:18 +0800</pubDate>
+      
+      <guid>https://shangrui-hash.github.io/posts/bugbounty/story/%E6%88%91%E6%98%AF%E5%A6%82%E4%BD%95%E6%8C%96%E5%88%B0%E4%B8%89%E4%B8%AA%E4%BB%B7%E5%80%BC250%E7%BE%8E%E5%88%80%E7%9A%84blind-ssrf%E6%BC%8F%E6%B4%9E%E7%9A%84/</guid>
+      <description>这是hackerone上的一个私人项目
+第一个Blind SSRF 第一个Blind SSRF 位于邀请链接页面:
+https://www.target.com/give-5-get-5/UOG262 挂上burpsuite作为代理，监控该页面触发的所有流量，发现该页面会发送POST请求给 https://www.target.com/rpc/url-health-check-rpc/check
+请求参数为:
+url=https%3A%2F%2Fwww.instagram.com%2Fp%2FBuMIheXHKsS%2F&amp;amp;sourceUrl=https%3A%2F%2Fwww.target.com%2Fgive-5-get-5%2FUOG262 返回的响应为:
+{&amp;#34;result&amp;#34;:null,&amp;#34;output&amp;#34;:&amp;#34;&amp;#34;} 经过测试，该请求的url 参数存在blind ssrf 漏洞
+从请求报文中可以看到，服务端会自动向URL的末尾添加/embed ，导致攻击者无法完全控制URL的path的部分，但是绕过方法很多：
+ 该特性可以通过30x重定向绕过。 使用#将追加的/embed 变成锚点部分  这几乎是一个全盲的SSRF漏洞：
+ 似乎没有任何SSRF filter来检查和过滤用户输入的URL，不需要任何绕过。 异步请求，无法通过延时来进行内网端口扫描(XSPA) 没有任何回显 不支持gopher协议，不支持file协议 不存在CRLF注入，不能走私请求报文 会跟随30x重定向  所以单纯利用该SSRF，我们几乎无法知道自己是否成功打到了内网。
+但是通过反连请求，我大约收集到5个不同的IP地址，这些IP地址都是AWS的IP地址，所以大致可以推断，目标站点部署在AWS上,并且似乎做了负载均衡
+我开始推测为什么访问该页面会触发上述POST请求，于是我审计了这个页面的前端代码，发现该页面使用iframe 嵌入Instagram的一些页面，同时使用js代码来检查这些Instagram页面对应的的URL是否health ，相关js代码如下:
+ RPC(&amp;#39;url-health-check/check&amp;#39;, {url: &amp;#34;https:\/\/www.instagram.com\/p\/BuMIheXHKsS\/&amp;#34;, sourceUrl: &amp;#34;https:\/\/www.target.com\/give-5-get-5\/UOG262&amp;#34;}); RPC 是目标站点封装好的一个用来发送http请求的函数
+console.log(RPC+&amp;#39;&amp;#39;) function RPC(e, t, o, i) {  i = i || {},  t = t || {};  var s = e.</description>
+    </item>
+    
+  </channel>
+</rss>

