@@ -34,10 +34,7 @@ console.log(RPC+&amp;#39;&amp;#39;) function RPC(e, t, o, i) {  i = i || {},  t 
       <pubDate>Fri, 17 Sep 2021 03:03:30 +0800</pubDate>
       
       <guid>https://shangrui-hash.github.io/about/</guid>
-      <description>尚 锐
-西安电子科技大学 · 计算机科学与技术专业 · 网络安全方向
-本科 / 2022年毕业
-0x00 技术栈 前端  熟悉ECMA-262标准，熟悉javascript的各种奇技淫巧 掌握html,css 熟悉 bootstrap、element-ui 等ui框架 对数据可视化有所了解，会用Echarts ，基于vue+Echarts开发过可视化个人时间复盘工具 会用vue、uniapp 等前端开发框架，使用uniapp 开发过校园资讯类跨端应用 会用微信小程序开发框架。  后端  喜爱并熟悉 Golang，熟悉Golang 基本语法、标准库、第三方库。 基于Golang开发过ARP欺骗工具、C2木马、XSS平台后端、目录扫描器、简易的src信息收集工具、弱口令爆破工具、 日志采集器、 熟悉PHP ，基于PHP开发过校园资讯类项目、个人博客的后端。可以做 PHP 项目的代码审计。会用Thinkphp 框架 熟悉C语言，基于C 开发过 端口扫描器、ARP 欺骗工具、DNS 拒绝服务攻击工具 会用python，基于python开发过一些小工具，可以用python编写pocsuite3的poc模块。 了解C++的基本语法,会用QT框架 会用MySQL、Redis 等数据库 会用ElasticSearch、Kibana  运维  熟悉 nginx，对错误配置nginx导致的安全问题有一定的研究 熟悉 shell 脚本编程 熟悉 docker ，docker-composer ,dork swarm, 可以熟练编写Dockerfile 和docker-composer.yaml  渗透测试  熟悉 RFC标准，善于从RFC标准出发挖掘漏洞 熟悉 WEB缓存投毒、WEB请求走私 等前沿漏洞 善于挖掘 Blind SSRF、Blind XXE 等OOB漏洞 熟悉 RESTFUL API、GraphQL 等前后端交互方式，对API安全有一定研究、具有GraphQL挖掘经验 熟悉 开放重定向、CRLF 注入、子域名接管、s3 bucket misconfiguration、nginx misconfiguration、 对象注入、SQL 注入、XSS、CSRF、文件上传漏洞、文件包含漏洞、命令执行漏洞、水平越权、垂直越权 等web安全漏洞 精通 burpsuite，具有burpsuite插件开发经验 具有 hackerone 私人项目挖掘经验，并获得过赏金 有PHP代码审计经验, 挖掘过通用性漏洞 对密码学有一定的了解，熟悉常用的对称加密和非对称加密算法 对内网渗透有一定的了解  安全开发  喜爱安全开发，自己动手开发过多款安全工具, 详细信息见github  0x01 对渗透的理解 对安全漏洞的理解 之所以安全漏洞层出不穷，是因为从“根基”上就是有缺陷的，根基便是RFC标准，但凡是RFC标准没有定义清楚的问题，各种第三方库、各种框架、各种软件的实现就会出现不一致性，这种不一致性是创造新的漏洞分类、新的trick、新的绕过技巧的宝库。</description>
+      <description> ID: 无在无不在 bug hunter ，梦想成为一个 security researcher  </description>
     </item>
     
   </channel>
