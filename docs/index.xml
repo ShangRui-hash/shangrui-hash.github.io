@@ -34,7 +34,7 @@ console.log(RPC+&amp;#39;&amp;#39;) function RPC(e, t, o, i) {  i = i || {},  t 
       <pubDate>Fri, 17 Sep 2021 03:03:30 +0800</pubDate>
       
       <guid>https://shangrui-hash.github.io/about/</guid>
-      <description> ID: 无在无不在 bug hunter ，梦想成为一个 security researcher  </description>
+      <description>I am a bug hunter who dreams of becoming a great security researcher, you can call me rickshang or 无在无不在</description>
     </item>
     
   </channel>
