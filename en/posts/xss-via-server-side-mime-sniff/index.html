@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html
+  class="not-ready text-sm lg:text-base"
+  style="--bg: #faf6f1"
+  lang="en-zh"
+>
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+
+  
+  <title>Server-Side MIME Sniff resulting from Go language project containerization - Writeups</title>
+
+  
+  <meta name="theme-color" />
+  
+  <meta name="description" content="answerdev/answer is a question and answer platform which is based on the go language, a few weeks ago I audit of the project, found there is an interesting vulnerability in the image upload function
+The working principle of the image uploading function of the system is roughly as follows:
+ step1. A user uploads an image file and stores the file in the local file system step2. When images need to be accessed, use the static resource server provided by gin framework to return the uploaded image files to the user as static resources  internal/router/static_router." />
+  <meta
+    name="author"
+    content=""
+  />
+  
+
+  
+  
+  
+  
+  
+  
+  <link rel="preload stylesheet" as="style" href="https://shangrui-hash.github.io/main.min.css" />
+
+  
+
+  
+     
+  <link rel="preload" as="image" href="https://shangrui-hash.github.io/theme.png" />
+
+  
+  
+  
+  <link rel="preload" as="image" href="../avatar.jpg" />
+  
+  
+
+  
+  <link rel="preload" as="image" href="https://shangrui-hash.github.io/twitter.svg" />
+  
+  <link rel="preload" as="image" href="https://shangrui-hash.github.io/github.svg" />
+  
+  <link rel="preload" as="image" href="https://shangrui-hash.github.io/rss.svg" />
+  
+
+  
+  <link rel="icon" href="https://shangrui-hash.github.io/avatar.jpg" />
+  <link rel="apple-touch-icon" href="https://shangrui-hash.github.io/avatar.jpg" />
+
+  
+  <meta name="generator" content="Hugo 0.97.3" />
+
+  
+  
+
+  
+  
+</head>
+
+  <body class="text-black duration-200 ease-out dark:text-white">
+    <header class="mx-auto flex h-[5rem] max-w-3xl px-8 lg:justify-center">
+  <div class="relative z-50 mr-auto flex items-center">
+    <a
+      class="-translate-x-[1px] -translate-y-0.5 text-3xl font-bold"
+      href="https://shangrui-hash.github.io/"
+      >Writeups</a
+    >
+    <a
+      class="btn-dark ml-6 h-6 w-6 shrink-0 cursor-pointer [background:url(./theme.svg)_left_center/cover_no-repeat] dark:invert dark:[background-position:right]"
+    ></a>
+  </div>
+
+  <a
+    class="btn-menu relative z-50 -mr-8 flex h-[5rem] w-[5rem] shrink-0 cursor-pointer flex-col items-center justify-center gap-2.5 lg:hidden"
+  ></a>
+
+  
+  <script>
+    
+    const htmlClass = document.documentElement.classList;
+    setTimeout(() => {
+      htmlClass.remove('not-ready');
+    }, 10);
+
+    
+    const btnMenu = document.querySelector('.btn-menu');
+    btnMenu.addEventListener('click', () => {
+      htmlClass.toggle('open');
+    });
+
+    
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    const lightBg = `"#faf6f1"`.replace(/"/g, '');
+    const setDark = (isDark) => {
+      metaTheme.setAttribute('content', isDark ? '#000' : lightBg);
+      htmlClass[isDark ? 'add' : 'remove']('dark');
+      localStorage.setItem('dark', isDark);
+    };
+
+    
+    const darkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    if (htmlClass.contains('dark')) {
+      setDark(true);
+    } else {
+      const darkVal = localStorage.getItem('dark');
+      setDark(darkVal ? darkVal === 'true' : darkScheme.matches);
+    }
+
+    
+    darkScheme.addEventListener('change', (event) => {
+      setDark(event.matches);
+    });
+
+    
+    const btnDark = document.querySelector('.btn-dark');
+    btnDark.addEventListener('click', () => {
+      setDark(localStorage.getItem('dark') !== 'true');
+    });
+  </script>
+
+  <div
+    class="nav-wrapper fixed inset-x-0 top-full z-40 flex h-full select-none flex-col justify-center pb-16 duration-200 dark:bg-black lg:static lg:h-auto lg:flex-row lg:!bg-transparent lg:pb-0 lg:transition-none"
+  >
+    
+    
+    <nav class="lg:ml-12 lg:flex lg:flex-row lg:items-center lg:space-x-6">
+      
+      <a
+        class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal"
+        href="/"
+        >Home</a
+      >
+      
+      <a
+        class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal"
+        href="/en/posts"
+        >Posts</a
+      >
+      
+      <a
+        class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal"
+        href="/en/about"
+        >Whoami</a
+      >
+      
+    </nav>
+    
+
+    
+    <nav
+      class="mt-12 flex justify-center space-x-10 dark:invert lg:mt-0 lg:ml-12 lg:items-center lg:space-x-6"
+    >
+      
+      <a
+        class="h-8 w-8 [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./twitter.svg)"
+        href=" https://twitter.com/RuiShang9 "
+        target="_blank"
+      ></a>
+      
+      <a
+        class="h-8 w-8 [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./github.svg)"
+        href=" https://github.com/ShangRui-hash "
+        target="_blank"
+      ></a>
+      
+      <a
+        class="h-8 w-8 [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./rss.svg)"
+        href=" https://shangrui-hash.github.io/index.xml "
+        target="_blank"
+      ></a>
+      
+    </nav>
+    
+  </div>
+</header>
+
+    
+    <div id="header-post">
+      <div id="toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#the-culprit-is-the-mime-standard-library">The culprit is the mime standard library</a></li>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#mitigation-measures">Mitigation measures</a></li>
+    <li><a href="#further-research">Further research</a></li>
+    <li><a href="#contact-me">Contact me</a></li>
+  </ul>
+</nav>
+      </div>
+    </div>
+
+
+
+
+    <main
+      class="prose prose-neutral relative mx-auto min-h-[calc(100%-10rem)] max-w-3xl px-8 pt-20 pb-32 dark:prose-invert"
+    >
+      
+
+<article>
+  <header class="mb-15">
+    <h1 class="!my-0 pb-2.5">Server-Side MIME Sniff resulting from Go language project containerization</h1>
+
+    
+    <div class="text-sm opacity-60">
+      
+      <time>Mar 2, 2023</time>
+      
+      
+    </div>
+    
+  </header>
+
+  
+  <div>
+    
+    <h4></h4>
+    <ul>
+      
+      <li>
+        <a href="https://shangrui-hash.github.io/zh/posts/xss-via-server-side-mime-sniff/">zh: Go语言项目容器化导致的Server-Side MIME Sniff </a>
+      </li>
+      
+    </ul>
+    
+  </div>
+
+
+
+
+  <section><p><a href="https://github.com/answerdev/answer">answerdev/answer</a> is  a question and answer platform which is based on the go language,  a few weeks ago I audit of the project, found  there is an <a href="https://huntr.dev/bounties/366cf8bb-19f6-4388-b089-d0a260efd863/">interesting vulnerability</a> in the image upload function</p>
+<p>The working principle of the image uploading function of the system is roughly as follows:</p>
+<ul>
+<li>step1. A user uploads an image file and stores the file in the local file system</li>
+<li>step2. When images need to be accessed, use the static resource server provided by gin framework to return the uploaded image files to the user as static resources</li>
+</ul>
+<p>internal/router/static_router.go</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// RegisterStaticRouter register static api router
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">a</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">StaticRouter</span>) <span style="color:#a6e22e">RegisterStaticRouter</span>(<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gin</span>.<span style="color:#a6e22e">RouterGroup</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Static</span>(<span style="color:#e6db74">&#34;/uploads&#34;</span>, <span style="color:#a6e22e">a</span>.<span style="color:#a6e22e">serviceConfig</span>.<span style="color:#a6e22e">UploadPath</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>To prevent users from uploading malicious files, the file upload function of the system sets a suffix whitelist. Users can upload files with the suffix in the whitelist</p>
+<p>internal/service/uploader/upload.go</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>	<span style="color:#a6e22e">FormatExts</span> = <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">Format</span>{
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.jpg&#34;</span>:  <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">JPEG</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.jpeg&#34;</span>: <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">JPEG</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.png&#34;</span>:  <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">PNG</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.gif&#34;</span>:  <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">GIF</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.tif&#34;</span>:  <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">TIFF</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.tiff&#34;</span>: <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">TIFF</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.bmp&#34;</span>:  <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">BMP</span>,
+</span></span><span style="display:flex;"><span>	}
+</span></span></code></pre></div><p>At first, I built the project locally and tested the file upload function and static resource service: I tried to upload <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> with the suffix <code>.bmp</code> <code>.tif</code> <code>.tiff</code> and access the files through static resource services. I found that the content-types in the returned response messages were <code>image/bmp</code>, <code>image/tiff</code>, <code>image/tiff</code> respectively. These MIME types were normal image types, which could not make the browser parse the contents in the response messages as html</p>
+<p>However, what is amazing is that when I use the docker image provided by answer official to build answer:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>docker run -d -p 9080:80 -v answer-data:/data --name answer answerdev/answer:latest
+</span></span></code></pre></div><p>Upload the same file again, then access the file, and find that the Content-Type of the returned http response message is changed to <code>text/html</code>!</p>
+<p>step1. Upload a picture file
+<img src="/paper/upload.png" alt=""></p>
+<p>step2. Access the file
+<img src="/paper/visit.png" alt=""></p>
+<h2 id="the-culprit-is-the-mime-standard-library">The culprit is the mime standard library</h2>
+<p>The reason why the Content-Type of png/tif/tiff image files is set to text/html in the static resource server implemented by go is that the mime standard library of go language is flawed.</p>
+<p>The static resource server implemented by the go language generally performs the following steps when it returns a file:</p>
+<ul>
+<li>step1. Call the mime.TypeByExtension() function to get the Content-Type based on the file suffix</li>
+<li>step2. If the Content-type returned by the mime.TypeByExtension() function is an empty string, a Server-Side MIME Sniff is implemented to identify the Content-type based on the file Content</li>
+</ul>
+<p>The implementation of the mime.TypeByExtension() function actually depends on the external mime.types file, which itself maintains a very limited mapping between file suffixes and Content-Type</p>
+<p>/usr/local/go/src/mime/type.go</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// TypeByExtension returns the MIME type associated with the file extension ext.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// The extension ext should begin with a leading dot, as in &#34;.html&#34;.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// When ext has no associated type, TypeByExtension returns &#34;&#34;.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Extensions are looked up first case-sensitively, then case-insensitively.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// The built-in table is small but on unix it is augmented by the local
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// system&#39;s MIME-info database or mime.types file(s) if available under one or
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// more of these names:
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//   /usr/local/share/mime/globs2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//   /usr/share/mime/globs2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//   /etc/mime.types
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//   /etc/apache2/mime.types
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//   /etc/apache/mime.types
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// On Windows, MIME types are extracted from the registry.
+</span></span></span></code></pre></div><p>In containerization, the alpine series of images is often used in order to minimize the attack surface and reduce the image size. The mime.types files listed above are not included in the Alpine series of images:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>/usr/local/share/mime/globs2
+</span></span><span style="display:flex;"><span>/usr/share/mime/globs2
+</span></span><span style="display:flex;"><span>/etc/mime.types
+</span></span><span style="display:flex;"><span>/etc/apache2/mime.types
+</span></span><span style="display:flex;"><span>/etc/apache/mime.types
+</span></span></code></pre></div><p>for example:</p>
+<p>/Users/rickshang/Code/SecurityResearch/InTheLab/content_type_lab/golang/fuzzer/main.go</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;mime&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">exts</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;.bmp&#34;</span>, <span style="color:#e6db74">&#34;.gif&#34;</span>, <span style="color:#e6db74">&#34;.jpeg&#34;</span>, <span style="color:#e6db74">&#34;.jpg&#34;</span>, <span style="color:#e6db74">&#34;.png&#34;</span>, <span style="color:#e6db74">&#34;.svg&#34;</span>, <span style="color:#e6db74">&#34;ico&#34;</span>, <span style="color:#e6db74">&#34;.tif&#34;</span>, <span style="color:#e6db74">&#34;.tiff&#34;</span>, <span style="color:#e6db74">&#34;.webp&#34;</span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">ext</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">exts</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">content_type</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">mime</span>.<span style="color:#a6e22e">TypeByExtension</span>(<span style="color:#a6e22e">ext</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;ext:%s content_type:%+v\n&#34;</span>, <span style="color:#a6e22e">ext</span>, <span style="color:#a6e22e">content_type</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Run locally:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>go run main.go
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ext:.bmp content_type:image/bmp
+</span></span><span style="display:flex;"><span>ext:.gif content_type:image/gif
+</span></span><span style="display:flex;"><span>ext:.jpeg content_type:image/jpeg
+</span></span><span style="display:flex;"><span>ext:.jpg content_type:image/jpeg
+</span></span><span style="display:flex;"><span>ext:.png content_type:image/png
+</span></span><span style="display:flex;"><span>ext:.svg content_type:image/svg+xml
+</span></span><span style="display:flex;"><span>ext:.ico content_type:image/x-icon
+</span></span><span style="display:flex;"><span>ext:.tif content_type:image/tiff
+</span></span><span style="display:flex;"><span>ext:.tiff content_type:image/tiff
+</span></span><span style="display:flex;"><span>ext:.webp content_type:image/webp
+</span></span></code></pre></div><p>Run with the golang official image: golang:1.19-alpine</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>docker run -it --rm -v /Users/rickshang/Code/SecurityResearch/InTheLab/content_type_lab/golang/fuzzer/main.go:/code/main.go -w /code golang:1.19-alpine go run main.go
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ext:.bmp content_type:
+</span></span><span style="display:flex;"><span>ext:.gif content_type:image/gif
+</span></span><span style="display:flex;"><span>ext:.jpeg content_type:image/jpeg
+</span></span><span style="display:flex;"><span>ext:.jpg content_type:image/jpeg
+</span></span><span style="display:flex;"><span>ext:.png content_type:image/png
+</span></span><span style="display:flex;"><span>ext:.svg content_type:image/svg+xml
+</span></span><span style="display:flex;"><span>ext:.ico content_type:
+</span></span><span style="display:flex;"><span>ext:.tif content_type:
+</span></span><span style="display:flex;"><span>ext:.tiff content_type:
+</span></span><span style="display:flex;"><span>ext:.webp content_type:image/webp
+</span></span></code></pre></div><p>In other words, if your static resource server is implemented based on go&rsquo;s mime standard library, When your static resource server uses alpine image containerization, it is likely that Content-Types of png/tif/tiff image files will be identified as text/html, leading to stored XSS vulnerabilities.</p>
+<h2 id="summary">Summary</h2>
+<p>What&rsquo;s interesting about this vulnerability is that it reveals how security issues relate to the environment: just because there are no security issues in test environments doesn&rsquo;t mean there are no security issues in production environments.</p>
+<p>Containerization in pursuit of minimizing attack surfaces also introduces new attack surfaces, the go language mime standard library is a typical example.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>A library implementation that relies on external files -----&gt; containerization-----&gt;Missing external file----&gt; a security issue is born
+</span></span></code></pre></div><h2 id="mitigation-measures">Mitigation measures</h2>
+<p>The go Language mime standard library maintains a very limited built-in mime type mapping: go/src/mime/type.go</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">builtinTypesLower</span> = <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.avif&#34;</span>: <span style="color:#e6db74">&#34;image/avif&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.css&#34;</span>:  <span style="color:#e6db74">&#34;text/css; charset=utf-8&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.gif&#34;</span>:  <span style="color:#e6db74">&#34;image/gif&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.htm&#34;</span>:  <span style="color:#e6db74">&#34;text/html; charset=utf-8&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.html&#34;</span>: <span style="color:#e6db74">&#34;text/html; charset=utf-8&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.jpeg&#34;</span>: <span style="color:#e6db74">&#34;image/jpeg&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.jpg&#34;</span>:  <span style="color:#e6db74">&#34;image/jpeg&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.js&#34;</span>:   <span style="color:#e6db74">&#34;text/javascript; charset=utf-8&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.json&#34;</span>: <span style="color:#e6db74">&#34;application/json&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.mjs&#34;</span>:  <span style="color:#e6db74">&#34;text/javascript; charset=utf-8&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.pdf&#34;</span>:  <span style="color:#e6db74">&#34;application/pdf&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.png&#34;</span>:  <span style="color:#e6db74">&#34;image/png&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.svg&#34;</span>:  <span style="color:#e6db74">&#34;image/svg+xml&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.wasm&#34;</span>: <span style="color:#e6db74">&#34;application/wasm&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.webp&#34;</span>: <span style="color:#e6db74">&#34;image/webp&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.xml&#34;</span>:  <span style="color:#e6db74">&#34;text/xml; charset=utf-8&#34;</span>,
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Solution 1: When packing the image copy the following mime.types file into the container:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>/usr/local/share/mime/globs2
+</span></span><span style="display:flex;"><span>/usr/share/mime/globs2
+</span></span><span style="display:flex;"><span>/etc/mime.types
+</span></span><span style="display:flex;"><span>/etc/apache2/mime.types
+</span></span><span style="display:flex;"><span>/etc/apache/mime.types
+</span></span></code></pre></div><p>Solution 2: Do not add suffixes other than the mime library builtin table to the whitelist when implementing the image upload function, for example,.bmp.ico.tif.tiff</p>
+<p>Solution 3: Use nginx as a static resource server</p>
+<h2 id="further-research">Further research</h2>
+<ul>
+<li>Do static resource servers in other languages have the same problem after containerization?</li>
+<li>Does containerization introduce any new security issues?</li>
+</ul>
+<h2 id="contact-me">Contact me</h2>
+<p>If you have any questions or good research direction, please feel free to contact me: <a href="mailto:hdrw1024@gmail.com">hdrw1024@gmail.com</a></p>
+</section>
+
+  
+  
+  <footer class="mt-12 flex flex-wrap">
+     
+    <a
+      class="mr-1.5 mb-1.5 rounded-lg bg-black/[3%] px-5 py-2 no-underline dark:bg-white/[8%]"
+      href="https://shangrui-hash.github.io/tags/xss"
+      >XSS</a
+    >
+    
+  </footer>
+  
+
+  
+  
+  
+
+  
+  
+  
+  
+
+
+  
+  
+    <div class="blog-post-comments">
+      
+        <div id="disquss_thread">
+  <script src="https://utteranc.es/client.js"
+    repo="ShangRui-hash/shangrui-hash.github.io"
+    issue-term="pathname"
+    label=""
+    theme="github-light"
+    crossorigin="anonymous"
+    async>
+  </script>
+</div>
+
+      
+    </div>
+  
+  
+
+</article>
+
+
+    </main>
+
+    <footer
+  class="opaco mx-auto flex h-[5rem] max-w-3xl items-center px-8 text-[0.9em] opacity-60"
+>
+  <div class="mr-auto">
+    &copy; 2023
+    <a class="link" href="https://shangrui-hash.github.io/">Writeups</a>
+  </div>
+  <a class="link mx-6" href="https://github.com/ShangRui-hash" rel="noopener" target="_blank"
+    >Powered by rickshang</a
+  >️
+  
+  >
+</footer>
+
+  </body>
+</html>

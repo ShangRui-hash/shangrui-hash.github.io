@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>XSS on Writeups</title>
+    <link>https://shangrui-hash.github.io/en/tags/xss/</link>
+    <description>Recent content in XSS on Writeups</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-zh</language>
+    <lastBuildDate>Thu, 02 Mar 2023 01:49:29 +0800</lastBuildDate><atom:link href="https://shangrui-hash.github.io/en/tags/xss/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Server-Side MIME Sniff resulting from Go language project containerization</title>
+      <link>https://shangrui-hash.github.io/en/posts/xss-via-server-side-mime-sniff/</link>
+      <pubDate>Thu, 02 Mar 2023 01:49:29 +0800</pubDate>
+      
+      <guid>https://shangrui-hash.github.io/en/posts/xss-via-server-side-mime-sniff/</guid>
+      <description>answerdev/answer is a question and answer platform which is based on the go language, a few weeks ago I audit of the project, found there is an interesting vulnerability in the image upload function
+The working principle of the image uploading function of the system is roughly as follows:
+ step1. A user uploads an image file and stores the file in the local file system step2. When images need to be accessed, use the static resource server provided by gin framework to return the uploaded image files to the user as static resources  internal/router/static_router.</description>
+    </item>
+    
+  </channel>
+</rss>

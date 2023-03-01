@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>XSS on Writeups</title>
+    <link>https://shangrui-hash.github.io/zh/tags/xss/</link>
+    <description>Recent content in XSS on Writeups</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-zh</language>
+    <lastBuildDate>Thu, 02 Mar 2023 01:49:29 +0800</lastBuildDate><atom:link href="https://shangrui-hash.github.io/zh/tags/xss/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Go语言项目容器化导致的Server-Side MIME Sniff</title>
+      <link>https://shangrui-hash.github.io/zh/posts/xss-via-server-side-mime-sniff/</link>
+      <pubDate>Thu, 02 Mar 2023 01:49:29 +0800</pubDate>
+      
+      <guid>https://shangrui-hash.github.io/zh/posts/xss-via-server-side-mime-sniff/</guid>
+      <description>answerdev/answer 是基于go语言编写的一个问答平台（类似于知乎），前几周在审计该项目时，发现该系统的图片上传功能点存在一个有趣的漏洞。
+该系统的图片上传功能点的工作原理大致如下:
+ step1. 用户上传图片文件，将文件存储在本地文件系统中 step2. 当需要访问图片时，使用gin框架提供的静态资源服务器将用户上传的图片文件作为静态资源返回给用户  internal/router/static_router.go
+// RegisterStaticRouter register static api router func (a *StaticRouter) RegisterStaticRouter(r *gin.RouterGroup) { 	r.Static(&amp;#34;/uploads&amp;#34;, a.serviceConfig.UploadPath) } 为了防止用户上传恶意文件，该系统的文件上传功能设置了一个后缀白名单, 用户只能上传白名单中后缀的文件
+internal/service/uploader/upload.go
+	FormatExts = map[string]imaging.Format{ 	&amp;#34;.jpg&amp;#34;: imaging.JPEG, 	&amp;#34;.jpeg&amp;#34;: imaging.JPEG, 	&amp;#34;.png&amp;#34;: imaging.PNG, 	&amp;#34;.gif&amp;#34;: imaging.GIF, 	&amp;#34;.tif&amp;#34;: imaging.TIFF, 	&amp;#34;.tiff&amp;#34;: imaging.TIFF, 	&amp;#34;.bmp&amp;#34;: imaging.BMP, 	} 起初，我在本地搭建了该项目，对文件上传功能和静态资源服务的进行了测试：我尝试上传文件内容为&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt; , 文件后缀为 &amp;lsquo;.bmp&amp;rsquo; &amp;lsquo;.tif&amp;rsquo; &amp;lsquo;.tiff&amp;rsquo; 的文件，然后通过静态资源服务访问这些文件，我发现返回的响应报文中Content-Type 分别为 image/bmp image/tiff image/tiff ，这些MIME都是正常的图片类型，无法使得浏览器将响应报文中的内容作为html来解析，从而造成XSS 。
+但是，神奇的是当我使用 answer 官方提供的docker镜像来搭建answer时:</description>
+    </item>
+    
+  </channel>
+</rss>

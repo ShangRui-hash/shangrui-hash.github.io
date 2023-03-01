@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html
+  class="not-ready text-sm lg:text-base"
+  style="--bg: #faf6f1"
+  lang="en-zh"
+>
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+
+  
+  <title>whoami - Writeups</title>
+
+  
+  <meta name="theme-color" />
+  
+  <meta name="description" content="Hi,I&rsquo;m rickshang , The Chinese name is 无在无不在, which is a dialectical name but difficult to translate into English.
+I like working on novel attack techniques and dream of becoming a security researcher
+I want to share some of my experiences through my blog and communicate with the security community at home and abroad.
+My CVE list:  CVE-2022-46181 XSS vulnerability in the application image file upload in gotify/server CVE-2023-22463 JwtSigKey hardcoded causes the k8s cluster to take over in kubeoperator/kubepi  There are other general vulnerabilities that I can&rsquo;t publicly disclose yet because they haven&rsquo;t been fixed" />
+  <meta
+    name="author"
+    content=""
+  />
+  
+
+  
+  
+  
+  
+  
+  
+  <link rel="preload stylesheet" as="style" href="https://shangrui-hash.github.io/main.min.css" />
+
+  
+
+  
+     
+  <link rel="preload" as="image" href="https://shangrui-hash.github.io/theme.png" />
+
+  
+  
+  
+  <link rel="preload" as="image" href="../avatar.jpg" />
+  
+  
+
+  
+  <link rel="preload" as="image" href="https://shangrui-hash.github.io/twitter.svg" />
+  
+  <link rel="preload" as="image" href="https://shangrui-hash.github.io/github.svg" />
+  
+  <link rel="preload" as="image" href="https://shangrui-hash.github.io/rss.svg" />
+  
+
+  
+  <link rel="icon" href="https://shangrui-hash.github.io/avatar.jpg" />
+  <link rel="apple-touch-icon" href="https://shangrui-hash.github.io/avatar.jpg" />
+
+  
+  <meta name="generator" content="Hugo 0.97.3" />
+
+  
+  
+
+  
+  
+</head>
+
+  <body class="text-black duration-200 ease-out dark:text-white">
+    <header class="mx-auto flex h-[5rem] max-w-3xl px-8 lg:justify-center">
+  <div class="relative z-50 mr-auto flex items-center">
+    <a
+      class="-translate-x-[1px] -translate-y-0.5 text-3xl font-bold"
+      href="https://shangrui-hash.github.io/"
+      >Writeups</a
+    >
+    <a
+      class="btn-dark ml-6 h-6 w-6 shrink-0 cursor-pointer [background:url(./theme.svg)_left_center/cover_no-repeat] dark:invert dark:[background-position:right]"
+    ></a>
+  </div>
+
+  <a
+    class="btn-menu relative z-50 -mr-8 flex h-[5rem] w-[5rem] shrink-0 cursor-pointer flex-col items-center justify-center gap-2.5 lg:hidden"
+  ></a>
+
+  
+  <script>
+    
+    const htmlClass = document.documentElement.classList;
+    setTimeout(() => {
+      htmlClass.remove('not-ready');
+    }, 10);
+
+    
+    const btnMenu = document.querySelector('.btn-menu');
+    btnMenu.addEventListener('click', () => {
+      htmlClass.toggle('open');
+    });
+
+    
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    const lightBg = `"#faf6f1"`.replace(/"/g, '');
+    const setDark = (isDark) => {
+      metaTheme.setAttribute('content', isDark ? '#000' : lightBg);
+      htmlClass[isDark ? 'add' : 'remove']('dark');
+      localStorage.setItem('dark', isDark);
+    };
+
+    
+    const darkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    if (htmlClass.contains('dark')) {
+      setDark(true);
+    } else {
+      const darkVal = localStorage.getItem('dark');
+      setDark(darkVal ? darkVal === 'true' : darkScheme.matches);
+    }
+
+    
+    darkScheme.addEventListener('change', (event) => {
+      setDark(event.matches);
+    });
+
+    
+    const btnDark = document.querySelector('.btn-dark');
+    btnDark.addEventListener('click', () => {
+      setDark(localStorage.getItem('dark') !== 'true');
+    });
+  </script>
+
+  <div
+    class="nav-wrapper fixed inset-x-0 top-full z-40 flex h-full select-none flex-col justify-center pb-16 duration-200 dark:bg-black lg:static lg:h-auto lg:flex-row lg:!bg-transparent lg:pb-0 lg:transition-none"
+  >
+    
+    
+    <nav class="lg:ml-12 lg:flex lg:flex-row lg:items-center lg:space-x-6">
+      
+      <a
+        class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal"
+        href="/"
+        >Home</a
+      >
+      
+      <a
+        class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal"
+        href="/en/posts"
+        >Posts</a
+      >
+      
+      <a
+        class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal"
+        href="/en/about"
+        >Whoami</a
+      >
+      
+    </nav>
+    
+
+    
+    <nav
+      class="mt-12 flex justify-center space-x-10 dark:invert lg:mt-0 lg:ml-12 lg:items-center lg:space-x-6"
+    >
+      
+      <a
+        class="h-8 w-8 [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./twitter.svg)"
+        href=" https://twitter.com/RuiShang9 "
+        target="_blank"
+      ></a>
+      
+      <a
+        class="h-8 w-8 [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./github.svg)"
+        href=" https://github.com/ShangRui-hash "
+        target="_blank"
+      ></a>
+      
+      <a
+        class="h-8 w-8 [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./rss.svg)"
+        href=" https://shangrui-hash.github.io/index.xml "
+        target="_blank"
+      ></a>
+      
+    </nav>
+    
+  </div>
+</header>
+
+    
+    <div id="header-post">
+      <div id="toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#my-cve-list">My CVE list:</a></li>
+    <li><a href="#my-open-source-project">My open source project:</a></li>
+  </ul>
+</nav>
+      </div>
+    </div>
+
+
+
+
+    <main
+      class="prose prose-neutral relative mx-auto min-h-[calc(100%-10rem)] max-w-3xl px-8 pt-20 pb-32 dark:prose-invert"
+    >
+      
+
+<article>
+  <header class="mb-15">
+    <h1 class="!my-0 pb-2.5">whoami</h1>
+
+    
+  </header>
+
+  
+  <div>
+    
+  </div>
+
+
+
+
+  <section><p>Hi,I&rsquo;m rickshang , The Chinese name is <code>无在无不在</code>, which is a dialectical name but difficult to translate into English.</p>
+<p>I like working on novel attack techniques and dream of becoming a security researcher</p>
+<p>I want to share some of my experiences through my blog and communicate with the security community at home and abroad.</p>
+<h2 id="my-cve-list">My CVE list:</h2>
+<ul>
+<li><a href="https://github.com/gotify/server/security/advisories/GHSA-xv6x-456v-24xh">CVE-2022-46181</a> XSS vulnerability in the application image file upload in <a href="https://github.com/gotify/server">gotify/server</a></li>
+<li><a href="https://github.com/KubeOperator/KubePi/security/advisories/GHSA-vjhf-8vqx-vqpq">CVE-2023-22463</a> JwtSigKey hardcoded causes the k8s cluster to take over in <a href="https://github.com/KubeOperator/KubePi">kubeoperator/kubepi</a></li>
+</ul>
+<p>There are other general vulnerabilities that I can&rsquo;t publicly disclose yet because they haven&rsquo;t been fixed</p>
+<h2 id="my-open-source-project">My open source project:</h2>
+<ul>
+<li><a href="https://github.com/ShangRui-hash/siusiu">siusiu</a></li>
+<li><a href="https://github.com/ShangRui-hash/url-collector">url-collector</a></li>
+<li><a href="https://github.com/ShangRui-hash/arp-spoofing">arp-spoofing</a></li>
+<li><a href="https://github.com/ShangRui-hash/php-lab">php-lab</a></li>
+<li><a href="https://github.com/ShangRui-hash/xss-platform">xss-platform</a></li>
+</ul>
+</section>
+
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+  
+
+
+  
+  
+    <div class="blog-post-comments">
+      
+        <div id="disquss_thread">
+  <script src="https://utteranc.es/client.js"
+    repo="ShangRui-hash/shangrui-hash.github.io"
+    issue-term="pathname"
+    label=""
+    theme="github-light"
+    crossorigin="anonymous"
+    async>
+  </script>
+</div>
+
+      
+    </div>
+  
+  
+
+</article>
+
+
+    </main>
+
+    <footer
+  class="opaco mx-auto flex h-[5rem] max-w-3xl items-center px-8 text-[0.9em] opacity-60"
+>
+  <div class="mr-auto">
+    &copy; 2023
+    <a class="link" href="https://shangrui-hash.github.io/">Writeups</a>
+  </div>
+  <a class="link mx-6" href="https://github.com/ShangRui-hash" rel="noopener" target="_blank"
+    >Powered by rickshang</a
+  >️
+  
+  >
+</footer>
+
+  </body>
+</html>

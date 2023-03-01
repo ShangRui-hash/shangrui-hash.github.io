@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html
+  class="not-ready text-sm lg:text-base"
+  style="--bg: #faf6f1"
+  lang="en-zh"
+>
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+
+  
+  <title>Go语言项目容器化导致的Server-Side MIME Sniff - Writeups</title>
+
+  
+  <meta name="theme-color" />
+  
+  <meta name="description" content="answerdev/answer 是基于go语言编写的一个问答平台（类似于知乎），前几周在审计该项目时，发现该系统的图片上传功能点存在一个有趣的漏洞。
+该系统的图片上传功能点的工作原理大致如下:
+ step1. 用户上传图片文件，将文件存储在本地文件系统中 step2. 当需要访问图片时，使用gin框架提供的静态资源服务器将用户上传的图片文件作为静态资源返回给用户  internal/router/static_router.go
+// RegisterStaticRouter register static api router func (a *StaticRouter) RegisterStaticRouter(r *gin.RouterGroup) { 	r.Static(&#34;/uploads&#34;, a.serviceConfig.UploadPath) } 为了防止用户上传恶意文件，该系统的文件上传功能设置了一个后缀白名单, 用户只能上传白名单中后缀的文件
+internal/service/uploader/upload.go
+	FormatExts = map[string]imaging.Format{ 	&#34;.jpg&#34;: imaging.JPEG, 	&#34;.jpeg&#34;: imaging.JPEG, 	&#34;.png&#34;: imaging.PNG, 	&#34;.gif&#34;: imaging.GIF, 	&#34;.tif&#34;: imaging.TIFF, 	&#34;.tiff&#34;: imaging.TIFF, 	&#34;.bmp&#34;: imaging.BMP, 	} 起初，我在本地搭建了该项目，对文件上传功能和静态资源服务的进行了测试：我尝试上传文件内容为&lt;script&gt;alert(1)&lt;/script&gt; , 文件后缀为 &lsquo;.bmp&rsquo; &lsquo;.tif&rsquo; &lsquo;.tiff&rsquo; 的文件，然后通过静态资源服务访问这些文件，我发现返回的响应报文中Content-Type 分别为 image/bmp image/tiff image/tiff ，这些MIME都是正常的图片类型，无法使得浏览器将响应报文中的内容作为html来解析，从而造成XSS 。
+但是，神奇的是当我使用 answer 官方提供的docker镜像来搭建answer时:" />
+  <meta
+    name="author"
+    content=""
+  />
+  
+
+  
+  
+  
+  
+  
+  
+  <link rel="preload stylesheet" as="style" href="https://shangrui-hash.github.io/main.min.css" />
+
+  
+
+  
+     
+  <link rel="preload" as="image" href="https://shangrui-hash.github.io/theme.png" />
+
+  
+  
+  
+  <link rel="preload" as="image" href="../avatar.jpg" />
+  
+  
+
+  
+  <link rel="preload" as="image" href="https://shangrui-hash.github.io/twitter.svg" />
+  
+  <link rel="preload" as="image" href="https://shangrui-hash.github.io/github.svg" />
+  
+  <link rel="preload" as="image" href="https://shangrui-hash.github.io/rss.svg" />
+  
+
+  
+  <link rel="icon" href="https://shangrui-hash.github.io/avatar.jpg" />
+  <link rel="apple-touch-icon" href="https://shangrui-hash.github.io/avatar.jpg" />
+
+  
+  <meta name="generator" content="Hugo 0.97.3" />
+
+  
+  
+
+  
+  
+</head>
+
+  <body class="text-black duration-200 ease-out dark:text-white">
+    <header class="mx-auto flex h-[5rem] max-w-3xl px-8 lg:justify-center">
+  <div class="relative z-50 mr-auto flex items-center">
+    <a
+      class="-translate-x-[1px] -translate-y-0.5 text-3xl font-bold"
+      href="https://shangrui-hash.github.io/"
+      >Writeups</a
+    >
+    <a
+      class="btn-dark ml-6 h-6 w-6 shrink-0 cursor-pointer [background:url(./theme.svg)_left_center/cover_no-repeat] dark:invert dark:[background-position:right]"
+    ></a>
+  </div>
+
+  <a
+    class="btn-menu relative z-50 -mr-8 flex h-[5rem] w-[5rem] shrink-0 cursor-pointer flex-col items-center justify-center gap-2.5 lg:hidden"
+  ></a>
+
+  
+  <script>
+    
+    const htmlClass = document.documentElement.classList;
+    setTimeout(() => {
+      htmlClass.remove('not-ready');
+    }, 10);
+
+    
+    const btnMenu = document.querySelector('.btn-menu');
+    btnMenu.addEventListener('click', () => {
+      htmlClass.toggle('open');
+    });
+
+    
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    const lightBg = `"#faf6f1"`.replace(/"/g, '');
+    const setDark = (isDark) => {
+      metaTheme.setAttribute('content', isDark ? '#000' : lightBg);
+      htmlClass[isDark ? 'add' : 'remove']('dark');
+      localStorage.setItem('dark', isDark);
+    };
+
+    
+    const darkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    if (htmlClass.contains('dark')) {
+      setDark(true);
+    } else {
+      const darkVal = localStorage.getItem('dark');
+      setDark(darkVal ? darkVal === 'true' : darkScheme.matches);
+    }
+
+    
+    darkScheme.addEventListener('change', (event) => {
+      setDark(event.matches);
+    });
+
+    
+    const btnDark = document.querySelector('.btn-dark');
+    btnDark.addEventListener('click', () => {
+      setDark(localStorage.getItem('dark') !== 'true');
+    });
+  </script>
+
+  <div
+    class="nav-wrapper fixed inset-x-0 top-full z-40 flex h-full select-none flex-col justify-center pb-16 duration-200 dark:bg-black lg:static lg:h-auto lg:flex-row lg:!bg-transparent lg:pb-0 lg:transition-none"
+  >
+    
+    
+    <nav class="lg:ml-12 lg:flex lg:flex-row lg:items-center lg:space-x-6">
+      
+      <a
+        class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal"
+        href="/"
+        >Home</a
+      >
+      
+      <a
+        class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal"
+        href="/en/posts"
+        >Posts</a
+      >
+      
+      <a
+        class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal"
+        href="/en/about"
+        >Whoami</a
+      >
+      
+    </nav>
+    
+
+    
+    <nav
+      class="mt-12 flex justify-center space-x-10 dark:invert lg:mt-0 lg:ml-12 lg:items-center lg:space-x-6"
+    >
+      
+      <a
+        class="h-8 w-8 [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./twitter.svg)"
+        href=" https://twitter.com/RuiShang9 "
+        target="_blank"
+      ></a>
+      
+      <a
+        class="h-8 w-8 [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./github.svg)"
+        href=" https://github.com/ShangRui-hash "
+        target="_blank"
+      ></a>
+      
+      <a
+        class="h-8 w-8 [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./rss.svg)"
+        href=" https://shangrui-hash.github.io/index.xml "
+        target="_blank"
+      ></a>
+      
+    </nav>
+    
+  </div>
+</header>
+
+    
+    <div id="header-post">
+      <div id="toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#罪魁祸首-mime-标准库">罪魁祸首 mime 标准库</a></li>
+    <li><a href="#总结">总结</a></li>
+    <li><a href="#修复方案">修复方案</a></li>
+    <li><a href="#进一步的研究">进一步的研究</a></li>
+    <li><a href="#contact-me">Contact me</a></li>
+  </ul>
+</nav>
+      </div>
+    </div>
+
+
+
+
+    <main
+      class="prose prose-neutral relative mx-auto min-h-[calc(100%-10rem)] max-w-3xl px-8 pt-20 pb-32 dark:prose-invert"
+    >
+      
+
+<article>
+  <header class="mb-15">
+    <h1 class="!my-0 pb-2.5">Go语言项目容器化导致的Server-Side MIME Sniff</h1>
+
+    
+    <div class="text-sm opacity-60">
+      
+      <time>2023年3月2日</time>
+      
+      
+    </div>
+    
+  </header>
+
+  
+  <div>
+    
+    <h4></h4>
+    <ul>
+      
+      <li>
+        <a href="https://shangrui-hash.github.io/en/posts/xss-via-server-side-mime-sniff/">en: Server-Side MIME Sniff resulting from Go language project containerization </a>
+      </li>
+      
+    </ul>
+    
+  </div>
+
+
+
+
+  <section><p><a href="https://github.com/answerdev/answer">answerdev/answer</a> 是基于go语言编写的一个问答平台（类似于知乎），前几周在审计该项目时，发现该系统的图片上传功能点存在一个<a href="https://huntr.dev/bounties/366cf8bb-19f6-4388-b089-d0a260efd863/">有趣的漏洞</a>。</p>
+<p>该系统的图片上传功能点的工作原理大致如下:</p>
+<ul>
+<li>step1. 用户上传图片文件，将文件存储在本地文件系统中</li>
+<li>step2. 当需要访问图片时，使用gin框架提供的静态资源服务器将用户上传的图片文件作为静态资源返回给用户</li>
+</ul>
+<p>internal/router/static_router.go</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// RegisterStaticRouter register static api router
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">a</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">StaticRouter</span>) <span style="color:#a6e22e">RegisterStaticRouter</span>(<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">gin</span>.<span style="color:#a6e22e">RouterGroup</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Static</span>(<span style="color:#e6db74">&#34;/uploads&#34;</span>, <span style="color:#a6e22e">a</span>.<span style="color:#a6e22e">serviceConfig</span>.<span style="color:#a6e22e">UploadPath</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>为了防止用户上传恶意文件，该系统的文件上传功能设置了一个后缀白名单, 用户只能上传白名单中后缀的文件</p>
+<p>internal/service/uploader/upload.go</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>	<span style="color:#a6e22e">FormatExts</span> = <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">Format</span>{
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.jpg&#34;</span>:  <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">JPEG</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.jpeg&#34;</span>: <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">JPEG</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.png&#34;</span>:  <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">PNG</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.gif&#34;</span>:  <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">GIF</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.tif&#34;</span>:  <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">TIFF</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.tiff&#34;</span>: <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">TIFF</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;.bmp&#34;</span>:  <span style="color:#a6e22e">imaging</span>.<span style="color:#a6e22e">BMP</span>,
+</span></span><span style="display:flex;"><span>	}
+</span></span></code></pre></div><p>起初，我在本地搭建了该项目，对文件上传功能和静态资源服务的进行了测试：我尝试上传文件内容为<code>&lt;script&gt;alert(1)&lt;/script&gt;</code> , 文件后缀为 &lsquo;.bmp&rsquo; &lsquo;.tif&rsquo; &lsquo;.tiff&rsquo; 的文件，然后通过静态资源服务访问这些文件，我发现返回的响应报文中Content-Type 分别为 <code>image/bmp</code> <code>image/tiff</code> <code>image/tiff</code> ，这些MIME都是正常的图片类型，无法使得浏览器将响应报文中的内容作为html来解析，从而造成XSS 。</p>
+<p>但是，神奇的是当我使用 answer 官方提供的docker镜像来搭建answer时:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>docker run -d -p 9080:80 -v answer-data:/data --name answer answerdev/answer:latest
+</span></span></code></pre></div><p>再次上传同样的文件，然后访问文件，发现返回的http响应报文的Content-Type 竟然变为了 <code>text/html</code> !</p>
+<p>step1. 上传图片文件
+<img src="/paper/upload.png" alt=""></p>
+<p>step2. 访问文件
+<img src="/paper/visit.png" alt=""></p>
+<h2 id="罪魁祸首-mime-标准库">罪魁祸首 mime 标准库</h2>
+<p>之所以go实现的静态资源服务器会出现这种将 png/tif/tiff 等后缀的图片文件的Content-Type设置为text/html的情况，是因为go语言的mime标准库的实现有问题。</p>
+<p>go语言实现的静态资源服务器在返回文件时，大致会执行以下步骤:</p>
+<ul>
+<li>step1. 调用mime.TypeByExtension()函数来根据文件后缀获取对应的Content-Type</li>
+<li>step2. 如果mime.TypeByExtension()函数返回的Content-Type为空字符串，则会进行Server-Side MIME Sniff ，即根据文件内容来判断对应的Content-Type</li>
+</ul>
+<p>而mime.TypeByExtension()函数的实现实际上是依赖于外部的mime.types文件的，其本身所维护的文件后缀与 Content-Type 的映射关系非常有限</p>
+<p>/usr/local/go/src/mime/type.go</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// TypeByExtension returns the MIME type associated with the file extension ext.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// The extension ext should begin with a leading dot, as in &#34;.html&#34;.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// When ext has no associated type, TypeByExtension returns &#34;&#34;.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Extensions are looked up first case-sensitively, then case-insensitively.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// The built-in table is small but on unix it is augmented by the local
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// system&#39;s MIME-info database or mime.types file(s) if available under one or
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// more of these names:
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//   /usr/local/share/mime/globs2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//   /usr/share/mime/globs2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//   /etc/mime.types
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//   /etc/apache2/mime.types
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//   /etc/apache/mime.types
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// On Windows, MIME types are extracted from the registry.
+</span></span></span></code></pre></div><p>在容器化过程中，为了追求最小化攻击面、更小的镜像体积，往往会使用alpine系列镜像,而该系列镜像中并没有以上所列的mime.types文件:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>/usr/local/share/mime/globs2
+</span></span><span style="display:flex;"><span>/usr/share/mime/globs2
+</span></span><span style="display:flex;"><span>/etc/mime.types
+</span></span><span style="display:flex;"><span>/etc/apache2/mime.types
+</span></span><span style="display:flex;"><span>/etc/apache/mime.types
+</span></span></code></pre></div><p>例如:
+/Users/rickshang/Code/SecurityResearch/InTheLab/content_type_lab/golang/fuzzer/main.go</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;mime&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">exts</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;.bmp&#34;</span>, <span style="color:#e6db74">&#34;.gif&#34;</span>, <span style="color:#e6db74">&#34;.jpeg&#34;</span>, <span style="color:#e6db74">&#34;.jpg&#34;</span>, <span style="color:#e6db74">&#34;.png&#34;</span>, <span style="color:#e6db74">&#34;.svg&#34;</span>, <span style="color:#e6db74">&#34;ico&#34;</span>, <span style="color:#e6db74">&#34;.tif&#34;</span>, <span style="color:#e6db74">&#34;.tiff&#34;</span>, <span style="color:#e6db74">&#34;.webp&#34;</span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">ext</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">exts</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">content_type</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">mime</span>.<span style="color:#a6e22e">TypeByExtension</span>(<span style="color:#a6e22e">ext</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;ext:%s content_type:%+v\n&#34;</span>, <span style="color:#a6e22e">ext</span>, <span style="color:#a6e22e">content_type</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>本地运行:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>go run main.go
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ext:.bmp content_type:image/bmp
+</span></span><span style="display:flex;"><span>ext:.gif content_type:image/gif
+</span></span><span style="display:flex;"><span>ext:.jpeg content_type:image/jpeg
+</span></span><span style="display:flex;"><span>ext:.jpg content_type:image/jpeg
+</span></span><span style="display:flex;"><span>ext:.png content_type:image/png
+</span></span><span style="display:flex;"><span>ext:.svg content_type:image/svg+xml
+</span></span><span style="display:flex;"><span>ext:.ico content_type:image/x-icon
+</span></span><span style="display:flex;"><span>ext:.tif content_type:image/tiff
+</span></span><span style="display:flex;"><span>ext:.tiff content_type:image/tiff
+</span></span><span style="display:flex;"><span>ext:.webp content_type:image/webp
+</span></span></code></pre></div><p>使用golang官方镜像：golang:1.19-alpine 容器化之后运行:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>docker run -it --rm -v /Users/rickshang/Code/SecurityResearch/InTheLab/content_type_lab/golang/fuzzer/main.go:/code/main.go -w /code golang:1.19-alpine go run main.go
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ext:.bmp content_type:
+</span></span><span style="display:flex;"><span>ext:.gif content_type:image/gif
+</span></span><span style="display:flex;"><span>ext:.jpeg content_type:image/jpeg
+</span></span><span style="display:flex;"><span>ext:.jpg content_type:image/jpeg
+</span></span><span style="display:flex;"><span>ext:.png content_type:image/png
+</span></span><span style="display:flex;"><span>ext:.svg content_type:image/svg+xml
+</span></span><span style="display:flex;"><span>ext:.ico content_type:
+</span></span><span style="display:flex;"><span>ext:.tif content_type:
+</span></span><span style="display:flex;"><span>ext:.tiff content_type:
+</span></span><span style="display:flex;"><span>ext:.webp content_type:image/webp
+</span></span></code></pre></div><p>话句话说，如果你的静态资源服务器是基于go语言的mime标准库来实现的，那么你的静态资源服务器在使用alpine镜像容器化之后很可能会出现这种将png/tif/tiff等后缀的图片文件的Content-Types识别为text/html的情况，进而导致存储型XSS漏洞。</p>
+<h2 id="总结">总结</h2>
+<p>该漏洞有趣的点在于，它揭示了安全问题与环境的关系: 测试环境下没有安全问题，不代表生产环境下也没有安全问题。</p>
+<p>容器化在追求最小化攻击面的同时也引入了新的攻击面，go语言mime标准库的问题便是典型的例子。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>依赖外部文件的标准库实现 -----&gt; 容器化-----&gt;外部文件缺失----&gt; 标准库功能出现安全问题
+</span></span></code></pre></div><h2 id="修复方案">修复方案</h2>
+<p>go语言 mime标准库维护的内置的mime类型映射关系非常有限: go/src/mime/type.go</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">builtinTypesLower</span> = <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.avif&#34;</span>: <span style="color:#e6db74">&#34;image/avif&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.css&#34;</span>:  <span style="color:#e6db74">&#34;text/css; charset=utf-8&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.gif&#34;</span>:  <span style="color:#e6db74">&#34;image/gif&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.htm&#34;</span>:  <span style="color:#e6db74">&#34;text/html; charset=utf-8&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.html&#34;</span>: <span style="color:#e6db74">&#34;text/html; charset=utf-8&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.jpeg&#34;</span>: <span style="color:#e6db74">&#34;image/jpeg&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.jpg&#34;</span>:  <span style="color:#e6db74">&#34;image/jpeg&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.js&#34;</span>:   <span style="color:#e6db74">&#34;text/javascript; charset=utf-8&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.json&#34;</span>: <span style="color:#e6db74">&#34;application/json&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.mjs&#34;</span>:  <span style="color:#e6db74">&#34;text/javascript; charset=utf-8&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.pdf&#34;</span>:  <span style="color:#e6db74">&#34;application/pdf&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.png&#34;</span>:  <span style="color:#e6db74">&#34;image/png&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.svg&#34;</span>:  <span style="color:#e6db74">&#34;image/svg+xml&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.wasm&#34;</span>: <span style="color:#e6db74">&#34;application/wasm&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.webp&#34;</span>: <span style="color:#e6db74">&#34;image/webp&#34;</span>,
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;.xml&#34;</span>:  <span style="color:#e6db74">&#34;text/xml; charset=utf-8&#34;</span>,
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>方案一: 打包镜像时将如下mime.types文件拷贝到容器中:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>/usr/local/share/mime/globs2
+</span></span><span style="display:flex;"><span>/usr/share/mime/globs2
+</span></span><span style="display:flex;"><span>/etc/mime.types
+</span></span><span style="display:flex;"><span>/etc/apache2/mime.types
+</span></span><span style="display:flex;"><span>/etc/apache/mime.types
+</span></span></code></pre></div><p>方案二: 在实现图片上传功能时，不要将mime标准库内置表之外的后缀类型添加到白名单中，例如: .bmp .ico .tif .tiff</p>
+<p>方案三: 使用nginx作为静态资源服务器</p>
+<h2 id="进一步的研究">进一步的研究</h2>
+<ul>
+<li>其他语言的静态资源服务器容器化后是否存在同样的问题？</li>
+<li>容器化是否会引入其他新的安全问题？</li>
+</ul>
+<h2 id="contact-me">Contact me</h2>
+<p>如果你有任何问题或者好的研究方向，欢迎联系我： <a href="mailto:hdrw1024@gmail.com">hdrw1024@gmail.com</a></p>
+</section>
+
+  
+  
+  <footer class="mt-12 flex flex-wrap">
+     
+    <a
+      class="mr-1.5 mb-1.5 rounded-lg bg-black/[3%] px-5 py-2 no-underline dark:bg-white/[8%]"
+      href="https://shangrui-hash.github.io/tags/xss"
+      >XSS</a
+    >
+    
+  </footer>
+  
+
+  
+  
+  
+
+  
+  
+  
+  
+
+
+  
+  
+    <div class="blog-post-comments">
+      
+        <div id="disquss_thread">
+  <script src="https://utteranc.es/client.js"
+    repo="ShangRui-hash/shangrui-hash.github.io"
+    issue-term="pathname"
+    label=""
+    theme="github-light"
+    crossorigin="anonymous"
+    async>
+  </script>
+</div>
+
+      
+    </div>
+  
+  
+
+</article>
+
+
+    </main>
+
+    <footer
+  class="opaco mx-auto flex h-[5rem] max-w-3xl items-center px-8 text-[0.9em] opacity-60"
+>
+  <div class="mr-auto">
+    &copy; 2023
+    <a class="link" href="https://shangrui-hash.github.io/">Writeups</a>
+  </div>
+  <a class="link mx-6" href="https://github.com/ShangRui-hash" rel="noopener" target="_blank"
+    >Powered by rickshang</a
+  >️
+  
+  >
+</footer>
+
+  </body>
+</html>

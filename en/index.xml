@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Writeups</title>
+    <link>https://shangrui-hash.github.io/en/</link>
+    <description>Recent content on Writeups</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-zh</language>
+    <lastBuildDate>Thu, 02 Mar 2023 01:49:29 +0800</lastBuildDate><atom:link href="https://shangrui-hash.github.io/en/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Server-Side MIME Sniff resulting from Go language project containerization</title>
+      <link>https://shangrui-hash.github.io/en/posts/xss-via-server-side-mime-sniff/</link>
+      <pubDate>Thu, 02 Mar 2023 01:49:29 +0800</pubDate>
+      
+      <guid>https://shangrui-hash.github.io/en/posts/xss-via-server-side-mime-sniff/</guid>
+      <description>answerdev/answer is a question and answer platform which is based on the go language, a few weeks ago I audit of the project, found there is an interesting vulnerability in the image upload function
+The working principle of the image uploading function of the system is roughly as follows:
+ step1. A user uploads an image file and stores the file in the local file system step2. When images need to be accessed, use the static resource server provided by gin framework to return the uploaded image files to the user as static resources  internal/router/static_router.</description>
+    </item>
+    
+    <item>
+      <title>whoami</title>
+      <link>https://shangrui-hash.github.io/en/about/</link>
+      <pubDate>Fri, 17 Sep 2021 03:03:30 +0800</pubDate>
+      
+      <guid>https://shangrui-hash.github.io/en/about/</guid>
+      <description>Hi,I&amp;rsquo;m rickshang , The Chinese name is 无在无不在, which is a dialectical name but difficult to translate into English.
+I like working on novel attack techniques and dream of becoming a security researcher
+I want to share some of my experiences through my blog and communicate with the security community at home and abroad.
+My CVE list:  CVE-2022-46181 XSS vulnerability in the application image file upload in gotify/server CVE-2023-22463 JwtSigKey hardcoded causes the k8s cluster to take over in kubeoperator/kubepi  There are other general vulnerabilities that I can&amp;rsquo;t publicly disclose yet because they haven&amp;rsquo;t been fixed</description>
+    </item>
+    
+  </channel>
+</rss>
