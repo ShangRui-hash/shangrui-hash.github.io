@@ -321,7 +321,7 @@ internal/service/uploader/upload.go
 <p>step2. 访问文件
 <img src="/paper/visit.png" alt=""></p>
 <h2 id="罪魁祸首-mime-标准库">罪魁祸首 mime 标准库</h2>
-<p>之所以go实现的静态资源服务器会出现这种将 png/tif/tiff 等后缀的图片文件的Content-Type设置为text/html的情况，是因为go语言的mime标准库的实现有问题。</p>
+<p>之所以go实现的静态资源服务器会出现这种将 bmp/tif/tiff 等后缀的图片文件的Content-Type设置为text/html的情况，是因为go语言的mime标准库的实现有问题。</p>
 <p>go语言实现的静态资源服务器在返回文件时，大致会执行以下步骤:</p>
 <ul>
 <li>step1. 调用mime.TypeByExtension()函数来根据文件后缀获取对应的Content-Type</li>
@@ -394,7 +394,7 @@ internal/service/uploader/upload.go
 </span></span><span style="display:flex;"><span>ext:.tif content_type:
 </span></span><span style="display:flex;"><span>ext:.tiff content_type:
 </span></span><span style="display:flex;"><span>ext:.webp content_type:image/webp
-</span></span></code></pre></div><p>话句话说，如果你的静态资源服务器是基于go语言的mime标准库来实现的，那么你的静态资源服务器在使用alpine镜像容器化之后很可能会出现这种将png/tif/tiff等后缀的图片文件的Content-Types识别为text/html的情况，进而导致存储型XSS漏洞。</p>
+</span></span></code></pre></div><p>话句话说，如果你的静态资源服务器是基于go语言的mime标准库来实现的，那么你的静态资源服务器在使用alpine镜像容器化之后很可能会出现这种将bmp/tif/tiff等后缀的图片文件的Content-Types识别为text/html的情况，进而导致存储型XSS漏洞。</p>
 <h2 id="总结">总结</h2>
 <p>该漏洞有趣的点在于，它揭示了安全问题与环境的关系: 测试环境下没有安全问题，不代表生产环境下也没有安全问题。</p>
 <p>容器化在追求最小化攻击面的同时也引入了新的攻击面，go语言mime标准库的问题便是典型的例子。</p>

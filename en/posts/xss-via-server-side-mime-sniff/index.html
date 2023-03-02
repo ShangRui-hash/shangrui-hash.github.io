@@ -317,7 +317,7 @@ The working principle of the image uploading function of the system is roughly a
 <p>step2. Access the file
 <img src="/paper/visit.png" alt=""></p>
 <h2 id="the-culprit-is-the-mime-standard-library">The culprit is the mime standard library</h2>
-<p>The reason why the Content-Type of png/tif/tiff image files is set to text/html in the static resource server implemented by go is that the mime standard library of go language is flawed.</p>
+<p>The reason why the Content-Type of bmp/tif/tiff image files is set to text/html in the static resource server implemented by go is that the mime standard library of go language is flawed.</p>
 <p>The static resource server implemented by the go language generally performs the following steps when it returns a file:</p>
 <ul>
 <li>step1. Call the mime.TypeByExtension() function to get the Content-Type based on the file suffix</li>
@@ -390,7 +390,7 @@ The working principle of the image uploading function of the system is roughly a
 </span></span><span style="display:flex;"><span>ext:.tif content_type:
 </span></span><span style="display:flex;"><span>ext:.tiff content_type:
 </span></span><span style="display:flex;"><span>ext:.webp content_type:image/webp
-</span></span></code></pre></div><p>In other words, if your static resource server is implemented based on go&rsquo;s mime standard library, When your static resource server uses alpine image containerization, it is likely that Content-Types of png/tif/tiff image files will be identified as text/html, leading to stored XSS vulnerabilities.</p>
+</span></span></code></pre></div><p>In other words, if your static resource server is implemented based on go&rsquo;s mime standard library, When your static resource server uses alpine image containerization, it is likely that Content-Types of bmp/tif/tiff image files will be identified as text/html, leading to stored XSS vulnerabilities.</p>
 <h2 id="summary">Summary</h2>
 <p>What&rsquo;s interesting about this vulnerability is that it reveals how security issues relate to the environment: just because there are no security issues in test environments doesn&rsquo;t mean there are no security issues in production environments.</p>
 <p>Containerization in pursuit of minimizing attack surfaces also introduces new attack surfaces, the go language mime standard library is a typical example.</p>
