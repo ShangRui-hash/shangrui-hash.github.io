@@ -46,13 +46,23 @@
   style="--bg: #faf6f1"
   lang="en-zh"
 >
-  <head>
+  
+
+<head>
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?8694ec908b292e8ba3a7e32aa9bba700";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+  
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, shrink-to-fit=no"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
   
   <title>Go语言项目容器化导致的Server-Side MIME Sniff - Writeups</title>
@@ -67,10 +77,7 @@
 internal/service/uploader/upload.go
 	FormatExts = map[string]imaging.Format{ 	&#34;.jpg&#34;: imaging.JPEG, 	&#34;.jpeg&#34;: imaging.JPEG, 	&#34;.png&#34;: imaging.PNG, 	&#34;.gif&#34;: imaging.GIF, 	&#34;.tif&#34;: imaging.TIFF, 	&#34;.tiff&#34;: imaging.TIFF, 	&#34;.bmp&#34;: imaging.BMP, 	} 起初，我在本地搭建了该项目，对文件上传功能和静态资源服务的进行了测试：我尝试上传文件内容为&lt;script&gt;alert(1)&lt;/script&gt; , 文件后缀为 &lsquo;.bmp&rsquo; &lsquo;.tif&rsquo; &lsquo;.tiff&rsquo; 的文件，然后通过静态资源服务访问这些文件，我发现返回的响应报文中Content-Type 分别为 image/bmp image/tiff image/tiff ，这些MIME都是正常的图片类型，无法使得浏览器将响应报文中的内容作为html来解析，从而造成XSS 。
 但是，神奇的是当我使用 answer 官方提供的docker镜像来搭建answer时:" />
-  <meta
-    name="author"
-    content=""
-  />
+  <meta name="author" content="" />
   
 
   
@@ -115,7 +122,6 @@ internal/service/uploader/upload.go
   
   
 </head>
-
   <body class="text-black duration-200 ease-out dark:text-white">
     <header class="mx-auto flex h-[5rem] max-w-3xl px-8 lg:justify-center">
   <div class="relative z-50 mr-auto flex items-center">

@@ -46,13 +46,23 @@
   style="--bg: #faf6f1"
   lang="en-zh"
 >
-  <head>
+  
+
+<head>
+  
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?8694ec908b292e8ba3a7e32aa9bba700";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+  
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, shrink-to-fit=no"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
   
   <title>Server-Side MIME Sniff resulting from Go language project containerization - Writeups</title>
@@ -63,10 +73,7 @@
   <meta name="description" content="answerdev/answer is a question and answer platform which is based on the go language, a few weeks ago I audit of the project, found there is an interesting vulnerability in the image upload function
 The working principle of the image uploading function of the system is roughly as follows:
  step1. A user uploads an image file and stores the file in the local file system step2. When images need to be accessed, use the static resource server provided by gin framework to return the uploaded image files to the user as static resources  internal/router/static_router." />
-  <meta
-    name="author"
-    content=""
-  />
+  <meta name="author" content="" />
   
 
   
@@ -111,7 +118,6 @@ The working principle of the image uploading function of the system is roughly a
   
   
 </head>
-
   <body class="text-black duration-200 ease-out dark:text-white">
     <header class="mx-auto flex h-[5rem] max-w-3xl px-8 lg:justify-center">
   <div class="relative z-50 mr-auto flex items-center">
