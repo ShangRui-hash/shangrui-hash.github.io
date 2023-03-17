@@ -6,7 +6,18 @@
     <description>Recent content on Writeups</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-zh</language>
-    <lastBuildDate>Thu, 02 Mar 2023 01:49:29 +0800</lastBuildDate><atom:link href="https://shangrui-hash.github.io/en/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 17 Mar 2023 16:40:17 +0800</lastBuildDate><atom:link href="https://shangrui-hash.github.io/en/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A Research Of The Inconsistency Between WHATWG URL standard And RFC URL standard</title>
+      <link>https://shangrui-hash.github.io/en/posts/a_research_of_inconsistencies_in_front_and_backend_url_parsers/</link>
+      <pubDate>Fri, 17 Mar 2023 16:40:17 +0800</pubDate>
+      
+      <guid>https://shangrui-hash.github.io/en/posts/a_research_of_inconsistencies_in_front_and_backend_url_parsers/</guid>
+      <description>In August 2022, when digging the SRC of Tianrongxin, I found that redacted teaching and training system was used in a site of Tianrongxin Education, so I downloaded the source code of redacted on github and audited it.
+Source &amp;amp; Sink According to the audit, redacted Education and training system uses goto parameter in many places to achieve page redirection, such as login function:
+http://demo.redacted.com/login?goto=/ If a logged-in user accesses this URL, the back-end reads the value of the goto parameter and fills it into the custom property data-goto of the div tag in the twig template:</description>
+    </item>
+    
     <item>
       <title>Server-Side MIME Sniff resulting from Go language project containerization</title>
       <link>https://shangrui-hash.github.io/en/posts/xss-via-server-side-mime-sniff/</link>

@@ -6,7 +6,20 @@
     <description>Recent content in Posts on Writeups</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-zh</language>
-    <lastBuildDate>Thu, 02 Mar 2023 01:49:29 +0800</lastBuildDate><atom:link href="https://shangrui-hash.github.io/zh/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 17 Mar 2023 18:12:41 +0800</lastBuildDate><atom:link href="https://shangrui-hash.github.io/zh/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>对WHATWG URL标准与RFC URL标准不一致性的研究</title>
+      <link>https://shangrui-hash.github.io/zh/posts/a_research_of_inconsistencies_in_front_and_backend_url_parsers/</link>
+      <pubDate>Fri, 17 Mar 2023 18:12:41 +0800</pubDate>
+      
+      <guid>https://shangrui-hash.github.io/zh/posts/a_research_of_inconsistencies_in_front_and_backend_url_parsers/</guid>
+      <description>2022年8月份在挖天融信SRC的时候，发现天融信的某个站点使用了redacted系统，于是便在github上下载了redacted的源码，审计了一下。
+Source &amp;amp; Sink 通过审计发现，redacted系统在多处使用goto 参数来实现页面的重定向，比如说登录功能:
+http://demo.redacted.com/login?goto=/ 已经登录的用户如果访问该URL，后端将会读取goto参数的值，将其填充到twig模板中的div标签的自定义属性data-goto中:
+{% block content %} &amp;lt;div id=&amp;#34;page-message-container&amp;#34; class=&amp;#34;page-message-container&amp;#34; data-goto=&amp;#34;{{ goto }}&amp;#34; data-duration={{ duration }}&amp;gt;  &amp;lt;div class=&amp;#34;page-message-panel&amp;#34;&amp;gt;  &amp;lt;div class=&amp;#34;page-message-heading&amp;#34;&amp;gt;  &amp;lt;h2 class=&amp;#34;page-message-title&amp;#34;&amp;gt;{{ title|trans }}&amp;lt;/h2&amp;gt;  &amp;lt;/div&amp;gt;  &amp;lt;div class=&amp;#34;page-message-body&amp;#34;&amp;gt;{{ message|default(&amp;#39;&amp;#39;)|trans|raw }}&amp;lt;/div&amp;gt;  &amp;lt;/div&amp;gt; &amp;lt;/div&amp;gt; {% endblock %} 之后前端通过如下js代码读取data-goto属性的值，通过window.location.href实现页面的跳转:
+function (e, t) {  var n = $(&amp;#34;#page-message-container&amp;#34;),  r = n.data(&amp;#34;goto&amp;#34;),  o = n.data(&amp;#34;duration&amp;#34;);  o &amp;gt; 0 &amp;amp;&amp;amp; r &amp;amp;&amp;amp; setTimeout((function () {  window.</description>
+    </item>
+    
     <item>
       <title>Go语言项目容器化导致的Server-Side MIME Sniff</title>
       <link>https://shangrui-hash.github.io/zh/posts/xss-via-server-side-mime-sniff/</link>
