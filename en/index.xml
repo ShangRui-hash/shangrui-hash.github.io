@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>1337妙妙屋</title>
+    <link>https://shangrui-hash.github.io/en/</link>
+    <description>Recent content on 1337妙妙屋</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>© 2025 无在无不在</copyright>
+    <lastBuildDate>Fri, 17 Mar 2023 16:40:17 +0800</lastBuildDate><atom:link href="https://shangrui-hash.github.io/en/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>A Research Of The Inconsistency Between WHATWG URL standard And RFC URL standard</title>
+      <link>https://shangrui-hash.github.io/en/posts/a_research_of_inconsistencies_in_front_and_backend_url_parsers/</link>
+      <pubDate>Fri, 17 Mar 2023 16:40:17 +0800</pubDate>
+      
+      <guid>https://shangrui-hash.github.io/en/posts/a_research_of_inconsistencies_in_front_and_backend_url_parsers/</guid>
+      <description>In August 2022, when digging the SRC of Tianrongxin, I found that redacted teaching and training system was used in a site of Tianrongxin Education, so I downloaded the source code of redacted on github and audited it.</description>
+      
+    </item>
+    
+    <item>
+      <title>Server-Side MIME Sniff resulting from Go language project containerization</title>
+      <link>https://shangrui-hash.github.io/en/posts/xss-via-server-side-mime-sniff/</link>
+      <pubDate>Thu, 02 Mar 2023 01:49:29 +0800</pubDate>
+      
+      <guid>https://shangrui-hash.github.io/en/posts/xss-via-server-side-mime-sniff/</guid>
+      <description>answerdev/answer is a question and answer platform which is based on the go language, a few weeks ago I audit of the project, found there is an interesting vulnerability in the image upload function</description>
+      
+    </item>
+    
+  </channel>
+</rss>

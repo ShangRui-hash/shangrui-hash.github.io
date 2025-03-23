@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Story on 1337妙妙屋</title>
+    <link>https://shangrui-hash.github.io/categories/story/</link>
+    <description>Recent content in Story on 1337妙妙屋</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <copyright>© 2025 无在无不在</copyright>
+    <lastBuildDate>Fri, 17 Mar 2023 18:12:41 +0800</lastBuildDate><atom:link href="https://shangrui-hash.github.io/categories/story/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>对WHATWG URL标准与RFC URL标准不一致性的研究</title>
+      <link>https://shangrui-hash.github.io/posts/a_research_of_inconsistencies_in_front_and_backend_url_parsers.en/</link>
+      <pubDate>Fri, 17 Mar 2023 18:12:41 +0800</pubDate>
+      
+      <guid>https://shangrui-hash.github.io/posts/a_research_of_inconsistencies_in_front_and_backend_url_parsers.en/</guid>
+      <description>2022年8月份在挖天融信SRC的时候，发现天融信的某个站点使用了redacted系统，于是便在github上下载了redacted的源码，审计了一下。</description>
+      
+    </item>
+    
+  </channel>
+</rss>

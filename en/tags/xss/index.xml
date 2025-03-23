@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>XSS on 1337妙妙屋</title>
+    <link>https://shangrui-hash.github.io/en/tags/xss/</link>
+    <description>Recent content in XSS on 1337妙妙屋</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>© 2025 无在无不在</copyright>
+    <lastBuildDate>Thu, 02 Mar 2023 01:49:29 +0800</lastBuildDate><atom:link href="https://shangrui-hash.github.io/en/tags/xss/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Server-Side MIME Sniff resulting from Go language project containerization</title>
+      <link>https://shangrui-hash.github.io/en/posts/xss-via-server-side-mime-sniff/</link>
+      <pubDate>Thu, 02 Mar 2023 01:49:29 +0800</pubDate>
+      
+      <guid>https://shangrui-hash.github.io/en/posts/xss-via-server-side-mime-sniff/</guid>
+      <description>answerdev/answer is a question and answer platform which is based on the go language, a few weeks ago I audit of the project, found there is an interesting vulnerability in the image upload function</description>
+      
+    </item>
+    
+  </channel>
+</rss>
